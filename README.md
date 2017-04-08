@@ -1,2 +1,1 @@
-# Mobile_Project_1
-Semester project for both Theory &amp; Practice
+Update project's description (gameplay, use-case diagram, class diagram)
