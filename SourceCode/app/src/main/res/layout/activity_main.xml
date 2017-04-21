@@ -20,15 +20,15 @@
         android:id="@+id/textViewInstruction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Correct Pattern"
+        android:text="How to draw pattern?"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:id="@+id/buttonRefresh"
+        android:id="@+id/buttonSurrender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Refresh"
+        android:text="Surrender"
         android:layout_below="@+id/textViewInstruction"
         android:layout_centerHorizontal="true" />
 

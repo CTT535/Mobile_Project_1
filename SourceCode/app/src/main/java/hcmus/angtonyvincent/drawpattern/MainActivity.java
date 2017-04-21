@@ -13,10 +13,14 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button refresh;
+    Button surrender;
     TextView instruction;
+
     private String correctPattern;
     private MaterialLockView materialLockView;
+
+    private int level;
+    private int passedPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +28,13 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        level = 1;
+        passedPoint = 2;
+
         instruction = (TextView) findViewById(R.id.textViewInstruction);
 
-        refresh = (Button) findViewById(R.id.buttonRefresh);
-        refresh.setOnClickListener(new View.OnClickListener() {
+        surrender = (Button) findViewById(R.id.buttonSurrender);
+        surrender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 newPattern();
@@ -45,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
                     materialLockView.setDisplayMode(MaterialLockView.DisplayMode.Correct);
 
+                    level++; // level up
+
                     newPattern();
 
                 } else {
@@ -59,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void newPattern() {
         correctPattern = randomPattern();
-        instruction.setText(correctPattern);
+        instruction.setText("Level " + level + "\nDraw this pattern : " + correctPattern);
     }
 
     public String randomPattern() {
@@ -73,7 +82,12 @@ public class MainActivity extends AppCompatActivity {
 
         Collections.shuffle(list);
 
-        for (int i = 0; i < 3; i++) {
+        passedPoint = level / 3 + 2; // min = 2
+        if (passedPoint > 9) {
+            passedPoint = 9; // max = 9
+        }
+
+        for (int i = 0; i < passedPoint; i++) {
             result += list.get(i).toString();
         }
 
