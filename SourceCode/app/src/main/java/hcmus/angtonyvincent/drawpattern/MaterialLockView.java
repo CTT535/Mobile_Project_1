@@ -6,6 +6,8 @@ import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -1091,7 +1093,7 @@ public class MaterialLockView extends View {
                 float centerX = getCenterXForColumn(j);
                 float size = cellState.size * cellState.scale;
                 float translationY = cellState.translateY;
-                drawCircle(canvas, (int) centerX, (int) centerY + translationY,
+                drawApple(canvas, (int) centerX, (int) centerY + translationY,
                         size, drawLookup[i][j], cellState.alpha);
             }
         }
@@ -1184,6 +1186,27 @@ public class MaterialLockView extends View {
         mPaint.setColor(getCurrentColor(partOfPattern));
         mPaint.setAlpha((int) (alpha * 255));
         canvas.drawCircle(centerX, centerY, size / 2, mPaint);
+    }
+
+    /**
+     * @param partOfPattern Whether this rectangle is part of the pattern.
+     */
+    private void drawRect(Canvas canvas, float centerX, float centerY,
+                            float size, boolean partOfPattern, float alpha) {
+        mPaint.setColor(getCurrentColor(partOfPattern));
+        mPaint.setAlpha((int) (alpha * 255));
+        canvas.drawRect(centerX - size / 2, centerY - size / 2, centerX + size / 2, centerY + size / 2, mPaint);
+    }
+
+    /**
+     * @param partOfPattern Whether this apple is part of the pattern.
+     */
+    private void drawApple(Canvas canvas, float centerX, float centerY,
+                          float size, boolean partOfPattern, float alpha) {
+        mPaint.setColor(getCurrentColor(partOfPattern));
+        mPaint.setAlpha((int) (alpha * 255));
+        Bitmap apple = BitmapFactory.decodeResource(getResources(), R.drawable.apple);
+        canvas.drawBitmap(apple, centerX - (apple.getWidth() / 2), centerY - (apple.getHeight() / 2), mPaint);
     }
 
 
