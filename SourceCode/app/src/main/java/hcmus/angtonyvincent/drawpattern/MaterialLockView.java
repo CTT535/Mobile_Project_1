@@ -145,7 +145,7 @@ public class MaterialLockView extends View {
             row = in.readInt();
         }
 
-    }
+    } // class Cell
 
     /**
      * How to display the current pattern.
@@ -166,7 +166,7 @@ public class MaterialLockView extends View {
          * The pattern is wrong (i.e draw a foreboding color)
          */
         Wrong
-    }
+    } // enum DisplayMode
 
     /**
      * The call back abstract class for detecting patterns entered by the user.
@@ -204,7 +204,7 @@ public class MaterialLockView extends View {
         public void onPatternDetected(List<Cell> pattern, String SimplePattern) {
 
         }
-    }
+    } // class OnPatternListener
 
     /**
      * The number of rows and columns
@@ -287,12 +287,21 @@ public class MaterialLockView extends View {
         public float lineEndX = Float.MIN_VALUE;
         public float lineEndY = Float.MIN_VALUE;
         public ValueAnimator lineAnimator;
-    }
+    } // classCellState
 
+    /**
+     * Constructor
+     * @param context
+     */
     public MaterialLockView(Context context) {
         this(context, null);
     }
 
+    /**
+     * Constructor
+     * @param context
+     * @param attrs
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public MaterialLockView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -451,43 +460,18 @@ public class MaterialLockView extends View {
         return stringBuilder.toString();
     }
 
+    /**
+     * Cell's position to String value
+     * @param cell
+     * @return value
+     */
     private String getSipmleCellPosition(Cell cell) {
         if (cell == null)
             return "";
-        switch (cell.row) {
-            case 0:
-                switch (cell.column) {
-                    case 0:
-                        return "1";
-                    case 1:
-                        return "2";
-                    case 2:
-                        return "3";
-                }
-                break;
-            case 1:
-                switch (cell.column) {
-                    case 0:
-                        return "4";
-                    case 1:
-                        return "5";
-                    case 2:
-                        return "6";
-                }
-                break;
-            case 2:
-                switch (cell.column) {
-                    case 0:
-                        return "7";
-                    case 1:
-                        return "8";
-                    case 2:
-                        return "9";
-                }
-                break;
-
+        else {
+            int i = cell.row * LOCK_SIZE + cell.column + 1;
+            return "" + i;
         }
-        return "";
     }
 
     private void notifyCellAdded() {
@@ -1093,7 +1077,7 @@ public class MaterialLockView extends View {
                 float centerX = getCenterXForColumn(j);
                 float size = cellState.size * cellState.scale;
                 float translationY = cellState.translateY;
-                drawApple(canvas, (int) centerX, (int) centerY + translationY,
+                drawCircle(canvas, (int) centerX, (int) centerY + translationY,
                         size, drawLookup[i][j], cellState.alpha);
             }
         }
