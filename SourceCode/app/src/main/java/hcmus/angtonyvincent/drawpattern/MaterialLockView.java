@@ -324,8 +324,8 @@ public class MaterialLockView extends View {
 
         mPathWidth = dpToPx(3);
         mPathPaint.setStrokeWidth(mPathWidth);
-        mDotSize = dpToPx(12);
-        mDotSizeActivated = dpToPx(28);
+        mDotSize = dpToPx(20); // Initiate dot's size
+        mDotSizeActivated = dpToPx(30); // Initiate dot's size when it is activated
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
 
@@ -1077,7 +1077,7 @@ public class MaterialLockView extends View {
                 float centerX = getCenterXForColumn(j);
                 float size = cellState.size * cellState.scale;
                 float translationY = cellState.translateY;
-                drawApple(canvas, (int) centerX, (int) centerY + translationY,
+                drawRect(canvas, (int) centerX, (int) centerY + translationY,
                         size, drawLookup[i][j], cellState.alpha);
             }
         }
