@@ -1077,7 +1077,7 @@ public class MaterialLockView extends View {
                 float centerX = getCenterXForColumn(j);
                 float size = cellState.size * cellState.scale;
                 float translationY = cellState.translateY;
-                drawCircle(canvas, (int) centerX, (int) centerY + translationY,
+                drawApple(canvas, (int) centerX, (int) centerY + translationY,
                         size, drawLookup[i][j], cellState.alpha);
             }
         }
