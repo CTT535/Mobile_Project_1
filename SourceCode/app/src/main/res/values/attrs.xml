@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="MaterialLockView">
+    <declare-styleable name="PatternDrawer">
         <attr name="LOCK_COLOR" format="color"/>
         <attr name="WRONG_COLOR" format="color"/>
         <attr name="CORRECT_COLOR" format="color"/>

@@ -37,206 +37,37 @@ import java.util.List;
  * Created by Ang Tony Vincent on 4/13/2017.
  */
 
-public class MaterialLockView extends View {
-
-    public static class Cell implements Parcelable {
-
-        public final int row, column;
-
-        static Cell[][] sCells = new Cell[LOCK_SIZE][LOCK_SIZE];
-
-        static {
-            for (int i = 0; i < LOCK_SIZE; i++) {
-                for (int j = 0; j < LOCK_SIZE; j++) {
-                    sCells[i][j] = new Cell(i, j);
-                }
-            }
-        }
-
-        /**
-         * @param row    number or row
-         * @param column number of column
-         */
-        private Cell(int row, int column) {
-            checkRange(row, column);
-            this.row = row;
-            this.column = column;
-        }
-
-        /**
-         * Gets the ID.It is counted from left to right, top to bottom of the matrix, starting by zero.
-         *
-         * @return the ID.
-         */
-        public int getId() {
-            return row * LOCK_SIZE + column;
-        }// getId()
-
-        /**
-         * @param row    The row of the cell.
-         * @param column The column of the cell.
-         */
-        public static synchronized Cell of(int row, int column) {
-            checkRange(row, column);
-            return sCells[row][column];
-        }
-
-        /**
-         * Gets a cell from its ID.
-         *
-         * @param id the cell ID.
-         * @return the cell.
-         */
-        public static synchronized Cell of(int id) {
-            return of(id / LOCK_SIZE, id % LOCK_SIZE);
-        }
-
-        private static void checkRange(int row, int column) {
-            if (row < 0 || row > LOCK_SIZE - 1) {
-                throw new IllegalArgumentException("row must be in range 0-"
-                        + (LOCK_SIZE - 1));
-            }
-            if (column < 0 || column > LOCK_SIZE - 1) {
-                throw new IllegalArgumentException("column must be in range 0-"
-                        + (LOCK_SIZE - 1));
-            }
-        }
-
-        /**
-         * @return Row and Column in String.
-         */
-        @Override
-        public String toString() {
-            return "(ROW=" + row + ",COL=" + column + ")";
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (object instanceof Cell)
-                return column == ((Cell) object).column
-                        && row == ((Cell) object).row;
-            return super.equals(object);
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(column);
-            dest.writeInt(row);
-        }
-
-        public static final Creator<Cell> CREATOR = new Creator<Cell>() {
-
-            public Cell createFromParcel(Parcel in) {
-                return new Cell(in);
-            }
-
-            public Cell[] newArray(int size) {
-                return new Cell[size];
-            }
-        };
-
-        private Cell(Parcel in) {
-            column = in.readInt();
-            row = in.readInt();
-        }
-
-    } // class Cell
-
-    /**
-     * How to display the current pattern.
-     */
-    public enum DisplayMode {
-
-        /**
-         * The pattern drawn is correct (i.e draw it in a friendly color)
-         */
-        Correct,
-
-        /**
-         * Animate the pattern (for demo, and help).
-         */
-        Animate,
-
-        /**
-         * The pattern is wrong (i.e draw a foreboding color)
-         */
-        Wrong
-    } // enum DisplayMode
-
-    /**
-     * The call back abstract class for detecting patterns entered by the user.
-     */
-    public static abstract class OnPatternListener {
-
-        /**
-         * A new pattern has begun.
-         */
-        public void onPatternStart() {
-
-        }
-
-        /**
-         * The pattern was cleared.
-         */
-        public void onPatternCleared() {
-
-        }
-
-        /**
-         * The user extended the pattern currently being drawn by one cell.
-         *
-         * @param pattern The pattern with newly added cell.
-         */
-        public void onPatternCellAdded(List<Cell> pattern, String SimplePattern) {
-
-        }
-
-        /**
-         * A pattern was detected from the user.
-         *
-         * @param pattern The pattern.
-         */
-        public void onPatternDetected(List<Cell> pattern, String SimplePattern) {
-
-        }
-    } // class OnPatternListener
+public class PatternDrawer extends View {
 
     /**
      * The number of rows and columns
      */
     public static final int LOCK_SIZE = 3;
-
     /**
      * The size of the pattern's matrix.
      */
     public static final int MATRIX_SIZE = LOCK_SIZE * LOCK_SIZE;
-
     private static final boolean PROFILE_DRAWING = false;
-    private final CellState[][] mCellStates;
-    private final int mDotSize;
-    private final int mDotSizeActivated;
-    private final int mPathWidth;
-    private boolean mDrawingProfilingStarted = false;
-    private Paint mPaint = new Paint();
-    private Paint mPathPaint = new Paint();
-
     /**
      * How many milliseconds we spend animating each circle of a lock pattern if the animating mode is set. The entire
      * animation should take this constant * the length of the pattern to complete.
      */
     private static final int MILLIS_PER_CIRCLE_ANIMATING = 700;
-
     /**
      * This can be used to avoid updating the display for very small motions or noisy panels. It didn't seem to have
      * much impact on the devices tested, so currently set to 0.
      */
     private static final float DRAG_THRESHHOLD = 0.0f;
-
+    private final CellState[][] mCellStates;
+    private final int mDotSize;
+    private final int mDotSizeActivated;
+    private final int mPathWidth;
+    private final Path mCurrentPath = new Path();
+    private final Rect mInvalidate = new Rect();
+    private final Rect mTmpInvalidateRect = new Rect();
+    private boolean mDrawingProfilingStarted = false;
+    private Paint mPaint = new Paint();
+    private Paint mPathPaint = new Paint();
     private OnPatternListener mOnPatternListener;
 
     private ArrayList<Cell> mPattern = new ArrayList<>(MATRIX_SIZE);
@@ -267,33 +98,16 @@ public class MaterialLockView extends View {
 
     private float mSquareWidth;
     private float mSquareHeight;
-
-    private final Path mCurrentPath = new Path();
-    private final Rect mInvalidate = new Rect();
-    private final Rect mTmpInvalidateRect = new Rect();
-
     private int mRegularColor;
     private int mErrorColor;
     private int mSuccessColor;
-
     private Interpolator mFastOutSlowInInterpolator;
     private Interpolator mLinearOutSlowInInterpolator;
-
-    public static class CellState {
-        public float scale = 1.0f;
-        public float translateY = 0.0f;
-        public float alpha = 1.0f;
-        public float size;
-        public float lineEndX = Float.MIN_VALUE;
-        public float lineEndY = Float.MIN_VALUE;
-        public ValueAnimator lineAnimator;
-    } // classCellState
-
     /**
      * Constructor
      * @param context
      */
-    public MaterialLockView(Context context) {
+    public PatternDrawer(Context context) {
         this(context, null);
     }
 
@@ -303,17 +117,17 @@ public class MaterialLockView extends View {
      * @param attrs
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public MaterialLockView(Context context, AttributeSet attrs) {
+    public PatternDrawer(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setClickable(true);
         mPathPaint.setAntiAlias(true);
         mPathPaint.setDither(true);
 
-        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MaterialLockView);
-        mRegularColor = typedArray.getColor(R.styleable.MaterialLockView_LOCK_COLOR, Color.WHITE);
-        mErrorColor = typedArray.getColor(R.styleable.MaterialLockView_WRONG_COLOR, Color.RED);
-        mSuccessColor = typedArray.getColor(R.styleable.MaterialLockView_CORRECT_COLOR, Color.GREEN);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PatternDrawer);
+        mRegularColor = typedArray.getColor(R.styleable.PatternDrawer_LOCK_COLOR, Color.WHITE);
+        mErrorColor = typedArray.getColor(R.styleable.PatternDrawer_WRONG_COLOR, Color.RED);
+        mSuccessColor = typedArray.getColor(R.styleable.PatternDrawer_CORRECT_COLOR, Color.GREEN);
         typedArray.recycle();
 
 
@@ -322,9 +136,9 @@ public class MaterialLockView extends View {
         mPathPaint.setStrokeJoin(Paint.Join.ROUND);
         mPathPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        mPathWidth = dpToPx(3);
+        mPathWidth = dpToPx(5); // Initiate path's size
         mPathPaint.setStrokeWidth(mPathWidth);
-        mDotSize = dpToPx(20); // Initiate dot's size
+        mDotSize = dpToPx(15); // Initiate dot's size
         mDotSizeActivated = dpToPx(30); // Initiate dot's size when it is activated
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
@@ -358,13 +172,6 @@ public class MaterialLockView extends View {
     }
 
     /**
-     * @return Whether the view has tactile feedback enabled.
-     */
-    public boolean isTactileFeedbackEnabled() {
-        return mEnableHapticFeedback;
-    }
-
-    /**
      * Set whether the view is in stealth mode. If {@code true}, there will be no visible feedback as the user enters
      * the pattern.
      *
@@ -372,6 +179,13 @@ public class MaterialLockView extends View {
      */
     public void setInStealthMode(boolean inStealthMode) {
         mInStealthMode = inStealthMode;
+    }
+
+    /**
+     * @return Whether the view has tactile feedback enabled.
+     */
+    public boolean isTactileFeedbackEnabled() {
+        return mEnableHapticFeedback;
     }
 
     /**
@@ -1077,7 +891,7 @@ public class MaterialLockView extends View {
                 float centerX = getCenterXForColumn(j);
                 float size = cellState.size * cellState.scale;
                 float translationY = cellState.translateY;
-                drawRect(canvas, (int) centerX, (int) centerY + translationY,
+                drawCustomPoint(canvas, (int) centerX, (int) centerY + translationY,
                         size, drawLookup[i][j], cellState.alpha);
             }
         }
@@ -1185,20 +999,211 @@ public class MaterialLockView extends View {
     /**
      * @param partOfPattern Whether this apple is part of the pattern.
      */
-    private void drawApple(Canvas canvas, float centerX, float centerY,
+    private void drawCustomPoint(Canvas canvas, float centerX, float centerY,
                           float size, boolean partOfPattern, float alpha) {
         mPaint.setColor(getCurrentColor(partOfPattern));
-        mPaint.setAlpha((int) (alpha * 255));
+        mPaint.setAlpha((int) (alpha * 255)); // the default transparency level
         Bitmap apple = BitmapFactory.decodeResource(getResources(), R.drawable.apple);
         canvas.drawBitmap(apple, centerX - (apple.getWidth() / 2), centerY - (apple.getHeight() / 2), mPaint);
     }
 
+    private int dpToPx(float dpValue) {
+        final float scale = getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    /**
+     * How to display the current pattern.
+     */
+    public enum DisplayMode {
+
+        /**
+         * The pattern drawn is correct (i.e draw it in a friendly color)
+         */
+        Correct,
+
+        /**
+         * Animate the pattern (for demo, and help).
+         */
+        Animate,
+
+        /**
+         * The pattern is wrong (i.e draw a foreboding color)
+         */
+        Wrong
+    } // enum DisplayMode
+
+    public static class Cell implements Parcelable {
+
+        public static final Creator<Cell> CREATOR = new Creator<Cell>() {
+
+            public Cell createFromParcel(Parcel in) {
+                return new Cell(in);
+            }
+
+            public Cell[] newArray(int size) {
+                return new Cell[size];
+            }
+        };
+        static Cell[][] sCells = new Cell[LOCK_SIZE][LOCK_SIZE];
+
+        static {
+            for (int i = 0; i < LOCK_SIZE; i++) {
+                for (int j = 0; j < LOCK_SIZE; j++) {
+                    sCells[i][j] = new Cell(i, j);
+                }
+            }
+        }
+
+        public final int row, column;
+
+        /**
+         * @param row    number or row
+         * @param column number of column
+         */
+        private Cell(int row, int column) {
+            checkRange(row, column);
+            this.row = row;
+            this.column = column;
+        }
+
+        private Cell(Parcel in) {
+            column = in.readInt();
+            row = in.readInt();
+        }
+
+        /**
+         * @param row    The row of the cell.
+         * @param column The column of the cell.
+         */
+        public static synchronized Cell of(int row, int column) {
+            checkRange(row, column);
+            return sCells[row][column];
+        }
+
+        /**
+         * Gets a cell from its ID.
+         *
+         * @param id the cell ID.
+         * @return the cell.
+         */
+        public static synchronized Cell of(int id) {
+            return of(id / LOCK_SIZE, id % LOCK_SIZE);
+        }
+
+        private static void checkRange(int row, int column) {
+            if (row < 0 || row > LOCK_SIZE - 1) {
+                throw new IllegalArgumentException("row must be in range 0-"
+                        + (LOCK_SIZE - 1));
+            }
+            if (column < 0 || column > LOCK_SIZE - 1) {
+                throw new IllegalArgumentException("column must be in range 0-"
+                        + (LOCK_SIZE - 1));
+            }
+        }
+
+        /**
+         * Gets the ID.It is counted from left to right, top to bottom of the matrix, starting by zero.
+         *
+         * @return the ID.
+         */
+        public int getId() {
+            return row * LOCK_SIZE + column;
+        }// getId()
+
+        /**
+         * @return Row and Column in String.
+         */
+        @Override
+        public String toString() {
+            return "(ROW=" + row + ",COL=" + column + ")";
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (object instanceof Cell)
+                return column == ((Cell) object).column
+                        && row == ((Cell) object).row;
+            return super.equals(object);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(column);
+            dest.writeInt(row);
+        }
+
+    } // class Cell
+
+    /**
+     * The call back abstract class for detecting patterns entered by the user.
+     */
+    public static abstract class OnPatternListener {
+
+        /**
+         * A new pattern has begun.
+         */
+        public void onPatternStart() {
+
+        }
+
+        /**
+         * The pattern was cleared.
+         */
+        public void onPatternCleared() {
+
+        }
+
+        /**
+         * The user extended the pattern currently being drawn by one cell.
+         *
+         * @param pattern The pattern with newly added cell.
+         */
+        public void onPatternCellAdded(List<Cell> pattern, String SimplePattern) {
+
+        }
+
+        /**
+         * A pattern was detected from the user.
+         *
+         * @param pattern The pattern.
+         */
+        public void onPatternDetected(List<Cell> pattern, String SimplePattern) {
+
+        }
+    } // class OnPatternListener
+
+    public static class CellState {
+        public float scale = 1.0f;
+        public float translateY = 0.0f;
+        public float alpha = 1.0f;
+        public float size;
+        public float lineEndX = Float.MIN_VALUE;
+        public float lineEndY = Float.MIN_VALUE;
+        public ValueAnimator lineAnimator;
+    } // classCellState
 
     /**
      * The parecelable for saving and restoring a lock pattern view.
      */
     private static class SavedState extends BaseSavedState {
 
+        @SuppressWarnings("unused")
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
         private final String mSerializedPattern;
         private final int mDisplayMode;
         private final boolean mInputEnabled;
@@ -1206,7 +1211,7 @@ public class MaterialLockView extends View {
         private final boolean mTactileFeedbackEnabled;
 
         /**
-         * Constructor called from {@link MaterialLockView#onSaveInstanceState()}
+         * Constructor called from {@link PatternDrawer#onSaveInstanceState()}
          */
         private SavedState(Parcelable superState, String serializedPattern,
                            int displayMode, boolean inputEnabled, boolean inStealthMode,
@@ -1260,87 +1265,20 @@ public class MaterialLockView extends View {
             dest.writeValue(mInStealthMode);
             dest.writeValue(mTactileFeedbackEnabled);
         }
-
-        @SuppressWarnings("unused")
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 
     public static class FloatAnimator {
-
-        public interface EventListener {
-
-            /**
-             * Will be called when animation starts.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationStart(@NonNull FloatAnimator animator);
-
-            /**
-             * Will be called when new animated value is calculated.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationUpdate(@NonNull FloatAnimator animator);
-
-            /**
-             * Will be called when animation cancels.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationCancel(@NonNull FloatAnimator animator);
-
-            /**
-             * Will be called when animation ends.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationEnd(@NonNull FloatAnimator animator);
-
-        }// EventListener
-
-        public static class SimpleEventListener implements EventListener {
-
-            @Override
-            public void onAnimationStart(@NonNull FloatAnimator animator) {
-            }//onAnimationStart()
-
-            @Override
-            public void onAnimationUpdate(@NonNull FloatAnimator animator) {
-            }//onAnimationUpdate()
-
-            @Override
-            public void onAnimationCancel(@NonNull FloatAnimator animator) {
-            }//onAnimationCancel()
-
-            @Override
-            public void onAnimationEnd(@NonNull FloatAnimator animator) {
-            }//onAnimationEnd()
-
-        }// SimpleEventListener
 
         /**
          * Animation delay, in milliseconds.
          */
         private static final long ANIMATION_DELAY = 1;
-
         private final float mStartValue, mEndValue;
         private final long mDuration;
         private float mAnimatedValue;
-
         private List<EventListener> mEventListeners;
         private Handler mHandler;
         private long mStartTime;
-
         /**
          * Creates new instance.
          *
@@ -1470,10 +1408,57 @@ public class MaterialLockView extends View {
             }// if
         }// notifyAnimationEnd()
 
-    }
+        public interface EventListener {
 
-    private int dpToPx(float dpValue) {
-        final float scale = getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
+            /**
+             * Will be called when animation starts.
+             *
+             * @param animator the animator.
+             */
+            void onAnimationStart(@NonNull FloatAnimator animator);
+
+            /**
+             * Will be called when new animated value is calculated.
+             *
+             * @param animator the animator.
+             */
+            void onAnimationUpdate(@NonNull FloatAnimator animator);
+
+            /**
+             * Will be called when animation cancels.
+             *
+             * @param animator the animator.
+             */
+            void onAnimationCancel(@NonNull FloatAnimator animator);
+
+            /**
+             * Will be called when animation ends.
+             *
+             * @param animator the animator.
+             */
+            void onAnimationEnd(@NonNull FloatAnimator animator);
+
+        }// EventListener
+
+        public static class SimpleEventListener implements EventListener {
+
+            @Override
+            public void onAnimationStart(@NonNull FloatAnimator animator) {
+            }//onAnimationStart()
+
+            @Override
+            public void onAnimationUpdate(@NonNull FloatAnimator animator) {
+            }//onAnimationUpdate()
+
+            @Override
+            public void onAnimationCancel(@NonNull FloatAnimator animator) {
+            }//onAnimationCancel()
+
+            @Override
+            public void onAnimationEnd(@NonNull FloatAnimator animator) {
+            }//onAnimationEnd()
+
+        }// SimpleEventListener
+
     }
 }

@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] simplePattern7 = {"1236987", "3214789", "1478963", "3698741", "4269871", "6247893", "1235789", "3215987"};
     private String[] simplePattern8 = {"12369874", "36987412", "98741236", "74123698", "12365478", "32145698", "78965412", "98745632"};
     private String[] simplePattern9 = {"123456789", "321654987", "123698745", "321478965", "123654789", "321456987", "784951623", "326159487"};
-    private MaterialLockView materialLockView;
+    private PatternDrawer patternDrawer;
 
     private int level;
     private int passedPoint;
@@ -50,14 +50,14 @@ public class MainActivity extends AppCompatActivity {
 
         newPattern();
 
-        materialLockView = (MaterialLockView) findViewById(R.id.pattern);
-        materialLockView.setOnPatternListener(new MaterialLockView.OnPatternListener() {
+        patternDrawer = (PatternDrawer) findViewById(R.id.pattern);
+        patternDrawer.setOnPatternListener(new PatternDrawer.OnPatternListener() {
             @Override
-            public void onPatternDetected(List<MaterialLockView.Cell> pattern, String SimplePattern) {
+            public void onPatternDetected(List<PatternDrawer.Cell> pattern, String SimplePattern) {
                 Log.e("SimplePattern", SimplePattern);
                 if (SimplePattern.equals(correctPattern)) {
 
-                    materialLockView.setDisplayMode(MaterialLockView.DisplayMode.Correct);
+                    patternDrawer.setDisplayMode(PatternDrawer.DisplayMode.Correct);
 
                     level++; // level up
 
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
 
-                    materialLockView.setDisplayMode(MaterialLockView.DisplayMode.Wrong);
+                    patternDrawer.setDisplayMode(PatternDrawer.DisplayMode.Wrong);
 
                 }
                 super.onPatternDetected(pattern, SimplePattern);
