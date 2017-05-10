@@ -15,10 +15,13 @@ public class GameplayActivity extends AppCompatActivity {
 
     private Button surrender;
     private TextView level;
+
     private PatternDrawer patternDrawer;
 
     private String correctPattern;
     private int currentLevel;
+
+    public static final String SUCCESS_MESSAGE = "SUCCESS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +30,7 @@ public class GameplayActivity extends AppCompatActivity {
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Get the Intent that started this activity and extract the string
-        Intent inputIntent = getIntent();
-        Bundle extras = inputIntent.getExtras();
+        Bundle extras = getIntent().getExtras();
         currentLevel = extras.getInt(PatternActivity.LEVEL_MESSAGE);
         correctPattern = extras.getString(PatternActivity.PATTERN_MESSAGE);
 
@@ -39,7 +41,7 @@ public class GameplayActivity extends AppCompatActivity {
         surrender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent surrenderIntent = new Intent(GameplayActivity.this, MainActivity.class);
+                Intent surrenderIntent = new Intent(GameplayActivity.this, ResultActivity.class);
                 startActivity(surrenderIntent);
                 finish();
             }
@@ -50,11 +52,15 @@ public class GameplayActivity extends AppCompatActivity {
             @Override
             public void onPatternDetected(List<PatternDrawer.Cell> pattern, String SimplePattern) {
                 Log.e("SimplePattern", SimplePattern);
-                if (SimplePattern.equals(correctPattern)) {
+                // There are two solution for a pattern
+                if (SimplePattern.equals(correctPattern)
+                        || SimplePattern.equals(new StringBuffer(correctPattern).reverse().toString())) {
 
+                    currentLevel++;
                     patternDrawer.setDisplayMode(PatternDrawer.DisplayMode.Correct);
 
-                    Intent continueIntent = new Intent(GameplayActivity.this, ResultActivity.class);
+                    Intent continueIntent = new Intent(GameplayActivity.this, PatternActivity.class);
+                    continueIntent.putExtra(SUCCESS_MESSAGE, currentLevel);
                     startActivity(continueIntent);
                     finish();
 
@@ -66,5 +72,10 @@ public class GameplayActivity extends AppCompatActivity {
                 super.onPatternDetected(pattern, SimplePattern);
             }
         });
-    }
+    } // onCreate
+
+    @Override
+    public void onBackPressed () {
+        // do nothing
+    } // onBackPressed
 }

@@ -27,5 +27,10 @@ public class ResultActivity extends AppCompatActivity {
                 finish();
             }
         }.start();
-    }
+    } // onCreate
+
+    @Override
+    public void onBackPressed () {
+        // do nothing
+    } // onBackPressed
 }

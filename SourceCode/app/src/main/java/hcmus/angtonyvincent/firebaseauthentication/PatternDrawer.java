@@ -1,4 +1,4 @@
-package hcmus.angtonyvincent.drawpattern;
+package hcmus.angtonyvincent.firebaseauthentication;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -103,8 +103,10 @@ public class PatternDrawer extends View {
     private int mSuccessColor;
     private Interpolator mFastOutSlowInInterpolator;
     private Interpolator mLinearOutSlowInInterpolator;
+
     /**
      * Constructor
+     *
      * @param context
      */
     public PatternDrawer(Context context) {
@@ -113,6 +115,7 @@ public class PatternDrawer extends View {
 
     /**
      * Constructor
+     *
      * @param context
      * @param attrs
      */
@@ -136,10 +139,10 @@ public class PatternDrawer extends View {
         mPathPaint.setStrokeJoin(Paint.Join.ROUND);
         mPathPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        mPathWidth = dpToPx(5); // Initiate path's size
+        mPathWidth = dpToPx(3); // Initiate path's size
         mPathPaint.setStrokeWidth(mPathWidth);
-        mDotSize = dpToPx(15); // Initiate dot's size
-        mDotSizeActivated = dpToPx(30); // Initiate dot's size when it is activated
+        mDotSize = dpToPx(10); // Initiate dot's size
+        mDotSizeActivated = dpToPx(20); // Initiate dot's size when it is activated
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
 
@@ -276,6 +279,7 @@ public class PatternDrawer extends View {
 
     /**
      * Cell's position to String value
+     *
      * @param cell
      * @return value
      */
@@ -891,7 +895,7 @@ public class PatternDrawer extends View {
                 float centerX = getCenterXForColumn(j);
                 float size = cellState.size * cellState.scale;
                 float translationY = cellState.translateY;
-                drawCustomPoint(canvas, (int) centerX, (int) centerY + translationY,
+                drawRect(canvas, (int) centerX, (int) centerY + translationY,
                         size, drawLookup[i][j], cellState.alpha);
             }
         }
@@ -990,7 +994,7 @@ public class PatternDrawer extends View {
      * @param partOfPattern Whether this rectangle is part of the pattern.
      */
     private void drawRect(Canvas canvas, float centerX, float centerY,
-                            float size, boolean partOfPattern, float alpha) {
+                          float size, boolean partOfPattern, float alpha) {
         mPaint.setColor(getCurrentColor(partOfPattern));
         mPaint.setAlpha((int) (alpha * 255));
         canvas.drawRect(centerX - size / 2, centerY - size / 2, centerX + size / 2, centerY + size / 2, mPaint);
@@ -1000,7 +1004,7 @@ public class PatternDrawer extends View {
      * @param partOfPattern Whether this apple is part of the pattern.
      */
     private void drawCustomPoint(Canvas canvas, float centerX, float centerY,
-                          float size, boolean partOfPattern, float alpha) {
+                                 float size, boolean partOfPattern, float alpha) {
         mPaint.setColor(getCurrentColor(partOfPattern));
         mPaint.setAlpha((int) (alpha * 255)); // the default transparency level
         Bitmap apple = BitmapFactory.decodeResource(getResources(), R.drawable.apple);
@@ -1279,6 +1283,7 @@ public class PatternDrawer extends View {
         private List<EventListener> mEventListeners;
         private Handler mHandler;
         private long mStartTime;
+
         /**
          * Creates new instance.
          *
