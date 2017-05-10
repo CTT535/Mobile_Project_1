@@ -18,7 +18,7 @@ public class ResultActivity extends AppCompatActivity {
         new CountDownTimer(1000, 1000) {
 
             public void onTick(long millisUntilFinished) {
-
+                // do nothing
             }
 
             public void onFinish() {

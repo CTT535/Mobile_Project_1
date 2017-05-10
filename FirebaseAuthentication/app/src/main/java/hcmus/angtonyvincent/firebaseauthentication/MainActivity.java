@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -99,6 +100,11 @@ public class MainActivity extends AppCompatActivity {
                                 Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
                                 startActivity(patternIntent);
                                 getActivity().finish();
+                                break;
+                            case 2:
+                            case 3:
+                            case 4:
+                                Toast.makeText(getContext(), "This section is now not available", Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     }

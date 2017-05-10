@@ -25,10 +25,18 @@
         android:layout_alignParentLeft="true"
         android:textSize="50sp" />
 
-    <Button
-        android:id="@+id/gameplay_surrender_button"
+    <TextView
+        android:id="@+id/gameplay_time_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="70sp"
+        android:layout_alignParentLeft="true"
+        android:textSize="50sp" />
+
+    <Button
+        android:id="@+id/gameplay_surrender_button"
+        android:layout_width="120sp"
+        android:layout_height="120sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:text="Surrender" />

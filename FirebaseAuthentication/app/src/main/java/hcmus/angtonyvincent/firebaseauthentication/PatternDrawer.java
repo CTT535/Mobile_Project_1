@@ -15,17 +15,13 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Debug;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
@@ -43,45 +39,53 @@ public class PatternDrawer extends View {
      * The number of rows and columns
      */
     public static final int LOCK_SIZE = 3;
+
     /**
      * The size of the pattern's matrix.
      */
     public static final int MATRIX_SIZE = LOCK_SIZE * LOCK_SIZE;
+
     private static final boolean PROFILE_DRAWING = false;
+
     /**
-     * How many milliseconds we spend animating each circle of a lock pattern if the animating mode is set. The entire
-     * animation should take this constant * the length of the pattern to complete.
+     * The time (millisecond) of the animation
      */
-    private static final int MILLIS_PER_CIRCLE_ANIMATING = 700;
+    private static final int MILLIS_PER_ANIMATION = 700;
+
     /**
-     * This can be used to avoid updating the display for very small motions or noisy panels. It didn't seem to have
-     * much impact on the devices tested, so currently set to 0.
+     * The display's update
      */
     private static final float DRAG_THRESHHOLD = 0.0f;
+
     private final CellState[][] mCellStates;
+
+    /**
+     * The size of dots and paths
+     */
     private final int mDotSize;
     private final int mDotSizeActivated;
     private final int mPathWidth;
+
     private final Path mCurrentPath = new Path();
     private final Rect mInvalidate = new Rect();
     private final Rect mTmpInvalidateRect = new Rect();
+
     private boolean mDrawingProfilingStarted = false;
+
     private Paint mPaint = new Paint();
     private Paint mPathPaint = new Paint();
+
     private OnPatternListener mOnPatternListener;
 
     private ArrayList<Cell> mPattern = new ArrayList<>(MATRIX_SIZE);
 
     /**
-     * Lookup table for the circles of the pattern we are currently drawing. This will be the cells of the complete
-     * pattern unless we are animating, in which case we use this to hold the cells we are drawing for the in progress
-     * animation.
+     * The pattern drawer
      */
     private boolean[][] mPatternDrawLookup = new boolean[LOCK_SIZE][LOCK_SIZE];
 
     /**
-     * the in progress point: - during interaction: where the user's finger is - during animation: the current tip of
-     * the animating line
+     * The position of user's finger
      */
     private float mInProgressX = -1;
     private float mInProgressY = -1;
@@ -163,44 +167,6 @@ public class PatternDrawer extends View {
         }
     }
 
-    public CellState[][] getCellStates() {
-        return mCellStates;
-    }
-
-    /**
-     * @return Whether the view is in stealth mode.
-     */
-    public boolean isInStealthMode() {
-        return mInStealthMode;
-    }
-
-    /**
-     * Set whether the view is in stealth mode. If {@code true}, there will be no visible feedback as the user enters
-     * the pattern.
-     *
-     * @param inStealthMode Whether in stealth mode.
-     */
-    public void setInStealthMode(boolean inStealthMode) {
-        mInStealthMode = inStealthMode;
-    }
-
-    /**
-     * @return Whether the view has tactile feedback enabled.
-     */
-    public boolean isTactileFeedbackEnabled() {
-        return mEnableHapticFeedback;
-    }
-
-    /**
-     * Set whether the view will use tactile feedback. If {@code true}, there will be tactile feedback as the user
-     * enters the pattern.
-     *
-     * @param tactileFeedbackEnabled Whether tactile feedback is enabled
-     */
-    public void setTactileFeedbackEnabled(boolean tactileFeedbackEnabled) {
-        mEnableHapticFeedback = tactileFeedbackEnabled;
-    }
-
     /**
      * Set the call back for pattern detection.
      *
@@ -211,9 +177,8 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Retrieves current pattern.
-     *
-     * @return current displaying pattern. <b>Note:</b> This is an independent list with the view's pattern itself.
+     * Retrieves current pattern
+     * @return current displaying pattern
      */
     @SuppressWarnings("unchecked")
     public List<Cell> getPattern() {
@@ -221,36 +186,8 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Set the pattern explicitly (rather than waiting for the user to input a pattern).
-     *
-     * @param displayMode How to display the pattern.
-     * @param pattern     The pattern.
-     */
-    public void setPattern(DisplayMode displayMode, List<Cell> pattern) {
-        mPattern.clear();
-        mPattern.addAll(pattern);
-        clearPatternDrawLookup();
-        for (Cell cell : pattern) {
-            mPatternDrawLookup[cell.row][cell.column] = true;
-        }
-
-        setDisplayMode(displayMode);
-    }
-
-    /**
-     * Gets display mode.
-     *
-     * @return display mode.
-     */
-    public DisplayMode getDisplayMode() {
-        return mPatternDisplayMode;
-    }// getDisplayMode()
-
-    /**
-     * Set the display mode of the current pattern. This can be useful, for instance, after detecting a pattern to tell
-     * this view whether change the in progress result to correct or wrong.
-     *
-     * @param displayMode The display mode.
+     * Set the display mode of the current pattern
+     * @param displayMode The display mode
      */
     public void setDisplayMode(DisplayMode displayMode) {
         mPatternDisplayMode = displayMode;
@@ -278,8 +215,7 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Cell's position to String value
-     *
+     * Calculate cell's position to string value
      * @param cell
      * @return value
      */
@@ -317,14 +253,7 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Clear the pattern.
-     */
-    public void clearPattern() {
-        resetPattern();
-    }
-
-    /**
-     * Reset all pattern state.
+     * Reset all pattern state
      */
     private void resetPattern() {
         mPattern.clear();
@@ -334,7 +263,7 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Clear the pattern lookup table.
+     * Clear the pattern lookup table
      */
     private void clearPatternDrawLookup() {
         for (int i = 0; i < LOCK_SIZE; i++) {
@@ -342,21 +271,6 @@ public class PatternDrawer extends View {
                 mPatternDrawLookup[i][j] = false;
             }
         }
-    }
-
-    /**
-     * Disable input (for instance when displaying a message that will timeout so user doesn't get view into messy
-     * state).
-     */
-    public void disableInput() {
-        mInputEnabled = false;
-    }
-
-    /**
-     * Enable input.
-     */
-    public void enableInput() {
-        mInputEnabled = true;
     }
 
     @Override
@@ -396,9 +310,7 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Determines whether the point x, y will add a new point to the current pattern (in addition to finding the cell,
-     * also makes heuristic choices such as filling in gaps based on current pattern).
-     *
+     * Determines whether the point is hit
      * @param x The x coordinate.
      * @param y The y coordinate.
      */
@@ -473,12 +385,6 @@ public class PatternDrawer extends View {
     private void startLineEndAnimation(final CellState state,
                                        final float startX, final float startY, final float targetX,
                                        final float targetY) {
-        /*
-         * Currently this animation looks unclear, we don't really need it...
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-            return;
-
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
         valueAnimator
                 .addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -509,55 +415,33 @@ public class PatternDrawer extends View {
     private void startSizeAnimation(float start, float end, long duration,
                                     Interpolator interpolator, final CellState state,
                                     final Runnable endRunnable) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            FloatAnimator animator = new FloatAnimator(start, end, duration);
-            animator.addEventListener(new FloatAnimator.SimpleEventListener() {
-
-                @Override
-                public void onAnimationUpdate(FloatAnimator animator) {
-                    state.size = (Float) animator.getAnimatedValue();
-                    invalidate();
-                }// onAnimationUpdate()
-
-                @Override
-                public void onAnimationEnd(FloatAnimator animator) {
-                    if (endRunnable != null)
-                        endRunnable.run();
-                }// onAnimationEnd()
-
-            });
-            animator.start();
-        }// API < 11
-        else {
-            ValueAnimator valueAnimator = ValueAnimator.ofFloat(start, end);
-            valueAnimator
-                    .addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animation) {
-                            state.size = (Float) animation.getAnimatedValue();
-                            invalidate();
-                        }
-
-                    });
-            if (endRunnable != null) {
-                valueAnimator.addListener(new AnimatorListenerAdapter() {
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(start, end);
+        valueAnimator
+                .addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
                     @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (endRunnable != null)
-                            endRunnable.run();
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        state.size = (Float) animation.getAnimatedValue();
+                        invalidate();
                     }
 
                 });
-            }
-            valueAnimator.setInterpolator(interpolator);
-            valueAnimator.setDuration(duration);
-            valueAnimator.start();
-        }// API 11+
+        if (endRunnable != null) {
+            valueAnimator.addListener(new AnimatorListenerAdapter() {
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    if (endRunnable != null)
+                        endRunnable.run();
+                }
+
+            });
+        }
+        valueAnimator.setInterpolator(interpolator);
+        valueAnimator.setDuration(duration);
+        valueAnimator.start();
     }// startSizeAnimation()
 
-    // helper method to find which cell a point maps to
     private Cell checkForNewHit(float x, float y) {
 
         final int rowHit = getRowHit(y);
@@ -576,8 +460,7 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Helper method to find the row that y falls into.
-     *
+     * Check the vertical coordinate
      * @param y The y coordinate
      * @return The row that y falls in, or -1 if it falls in no row.
      */
@@ -598,8 +481,7 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * Helper method to find the column x fallis into.
-     *
+     * Check the honrizontal coordinate
      * @param x The x coordinate.
      * @return The column that x falls in, or -1 if it falls in no column.
      */
@@ -657,13 +539,6 @@ public class PatternDrawer extends View {
                 handleActionMove(event);
                 return true;
             case MotionEvent.ACTION_CANCEL:
-            /*
-             * Original source check for mPatternInProgress == true first before
-             * calling next three lines. But if we do that, there will be
-             * nothing happened when the user taps at empty area and releases
-             * the finger. We want the pattern to be reset and the message will
-             * be updated after the user did that.
-             */
                 mPatternInProgress = false;
                 resetPattern();
                 notifyPatternCleared();
@@ -680,9 +555,6 @@ public class PatternDrawer extends View {
     }
 
     private void handleActionMove(MotionEvent event) {
-        // Handle all recent motion events so we don't skip any cells even when
-        // the device
-        // is busy...
         final float radius = mPathWidth;
         final int historySize = event.getHistorySize();
         mTmpInvalidateRect.setEmpty();
@@ -698,7 +570,6 @@ public class PatternDrawer extends View {
                 mPatternInProgress = true;
                 notifyPatternStarted();
             }
-            // note current x and y for rubber banding of in progress patterns
             final float dx = Math.abs(x - mInProgressX);
             final float dy = Math.abs(y - mInProgressY);
             if (dx > DRAG_THRESHHOLD || dy > DRAG_THRESHHOLD) {
@@ -710,16 +581,11 @@ public class PatternDrawer extends View {
                 final Cell lastCell = pattern.get(patternSize - 1);
                 float lastCellCenterX = getCenterXForColumn(lastCell.column);
                 float lastCellCenterY = getCenterYForRow(lastCell.row);
-
-                // Adjust for drawn segment from last cell to (x,y). Radius
-                // accounts for line width.
                 float left = Math.min(lastCellCenterX, x) - radius;
                 float right = Math.max(lastCellCenterX, x) + radius;
                 float top = Math.min(lastCellCenterY, y) - radius;
                 float bottom = Math.max(lastCellCenterY, y) + radius;
 
-                // Invalidate between the pattern's new cell and the pattern's
-                // previous cell
                 if (hitCell != null) {
                     final float width = mSquareWidth * 0.5f;
                     final float height = mSquareHeight * 0.5f;
@@ -732,8 +598,6 @@ public class PatternDrawer extends View {
                     bottom = Math.max(hitCellCenterY + height, bottom);
                 }
 
-                // Invalidate between the pattern's last cell and the previous
-                // location
                 mTmpInvalidateRect.union(Math.round(left), Math.round(top),
                         Math.round(right), Math.round(bottom));
             }
@@ -741,22 +605,11 @@ public class PatternDrawer extends View {
         mInProgressX = event.getX();
         mInProgressY = event.getY();
 
-        // To save updates, we only invalidate if the user moved beyond a
-        // certain amount.
         if (invalidateNow) {
             mInvalidate.union(mTmpInvalidateRect);
             invalidate(mInvalidate);
             mInvalidate.set(mTmpInvalidateRect);
         }
-    }
-
-    private void sendAccessEvent(int resId) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            setContentDescription(getContext().getString(resId));
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
-            setContentDescription(null);
-        } else
-            announceForAccessibility(getContext().getString(resId));
     }
 
     private void handleActionUp(MotionEvent event) {
@@ -798,13 +651,6 @@ public class PatternDrawer extends View {
             mPatternDisplayMode = DisplayMode.Correct;
             notifyPatternStarted();
         } else {
-            /*
-             * Original source check for mPatternInProgress == true first before
-             * calling this block. But if we do that, there will be nothing
-             * happened when the user taps at empty area and releases the
-             * finger. We want the pattern to be reset and the message will be
-             * updated after the user did that.
-             */
             mPatternInProgress = false;
             notifyPatternCleared();
         }
@@ -845,13 +691,12 @@ public class PatternDrawer extends View {
 
         if (mPatternDisplayMode == DisplayMode.Animate) {
 
-            // figure out which circles to draw
+            // figure out what to draw
 
-            // + 1 so we pause on complete pattern
-            final int oneCycle = (count + 1) * MILLIS_PER_CIRCLE_ANIMATING;
+            final int oneCycle = (count + 1) * MILLIS_PER_ANIMATION;
             final int spotInCycle = (int) (SystemClock.elapsedRealtime() - mAnimatingPeriodStart)
                     % oneCycle;
-            final int numCircles = spotInCycle / MILLIS_PER_CIRCLE_ANIMATING;
+            final int numCircles = spotInCycle / MILLIS_PER_ANIMATION;
 
             clearPatternDrawLookup();
             for (int i = 0; i < numCircles; i++) {
@@ -865,8 +710,8 @@ public class PatternDrawer extends View {
                     && numCircles < count;
 
             if (needToUpdateInProgressPoint) {
-                final float percentageOfNextCircle = ((float) (spotInCycle % MILLIS_PER_CIRCLE_ANIMATING))
-                        / MILLIS_PER_CIRCLE_ANIMATING;
+                final float percentageOfNextCircle = ((float) (spotInCycle % MILLIS_PER_ANIMATION))
+                        / MILLIS_PER_ANIMATION;
 
                 final Cell currentCell = pattern.get(numCircles - 1);
                 final float centerX = getCenterXForColumn(currentCell.column);
@@ -880,14 +725,14 @@ public class PatternDrawer extends View {
                 mInProgressX = centerX + dx;
                 mInProgressY = centerY + dy;
             }
-            // TODO: Infinite loop here...
+
             invalidate();
         }
 
         final Path currentPath = mCurrentPath;
         currentPath.rewind();
 
-        // draw the circles
+        // draw the cells
         for (int i = 0; i < LOCK_SIZE; i++) {
             float centerY = getCenterYForRow(i);
             for (int j = 0; j < LOCK_SIZE; j++) {
@@ -900,10 +745,7 @@ public class PatternDrawer extends View {
             }
         }
 
-        // TODO: the path should be created and cached every time we hit-detect
-        // a cell
-        // only the last segment of the path should be computed here
-        // draw the path of the pattern (unless we are in stealth mode)
+        // draw the paths
         final boolean drawPath = !mInStealthMode;
 
         if (drawPath) {
@@ -915,9 +757,6 @@ public class PatternDrawer extends View {
             for (int i = 0; i < count; i++) {
                 Cell cell = pattern.get(i);
 
-                // only draw the part of the pattern stored in
-                // the lookup table (this is only different in the case
-                // of animation).
                 if (!drawLookup[cell.row][cell.column]) {
                     break;
                 }
@@ -966,7 +805,7 @@ public class PatternDrawer extends View {
 
     private int getCurrentColor(boolean partOfPattern) {
         if (!partOfPattern || mInStealthMode || mPatternInProgress) {
-            // unselected circle
+            // unselected cell
             return mRegularColor;
         } else if (mPatternDisplayMode == DisplayMode.Wrong) {
             // the pattern is wrong
@@ -1017,22 +856,22 @@ public class PatternDrawer extends View {
     }
 
     /**
-     * How to display the current pattern.
+     * Display the current pattern
      */
     public enum DisplayMode {
 
         /**
-         * The pattern drawn is correct (i.e draw it in a friendly color)
+         * The pattern drawn is correct
          */
         Correct,
 
         /**
-         * Animate the pattern (for demo, and help).
+         * Animate the pattern
          */
         Animate,
 
         /**
-         * The pattern is wrong (i.e draw a foreboding color)
+         * The pattern is wrong
          */
         Wrong
     } // enum DisplayMode
@@ -1086,8 +925,7 @@ public class PatternDrawer extends View {
         }
 
         /**
-         * Gets a cell from its ID.
-         *
+         * Get a cell
          * @param id the cell ID.
          * @return the cell.
          */
@@ -1107,8 +945,7 @@ public class PatternDrawer extends View {
         }
 
         /**
-         * Gets the ID.It is counted from left to right, top to bottom of the matrix, starting by zero.
-         *
+         * Get the ID
          * @return the ID.
          */
         public int getId() {
@@ -1144,38 +981,33 @@ public class PatternDrawer extends View {
 
     } // class Cell
 
-    /**
-     * The call back abstract class for detecting patterns entered by the user.
-     */
     public static abstract class OnPatternListener {
 
         /**
-         * A new pattern has begun.
+         * Start a new pattern
          */
         public void onPatternStart() {
 
         }
 
         /**
-         * The pattern was cleared.
+         * Delete the old pattern
          */
         public void onPatternCleared() {
 
         }
 
         /**
-         * The user extended the pattern currently being drawn by one cell.
-         *
-         * @param pattern The pattern with newly added cell.
+         * Add a cell to the pattern
+         * @param pattern The pattern
          */
         public void onPatternCellAdded(List<Cell> pattern, String SimplePattern) {
 
         }
 
         /**
-         * A pattern was detected from the user.
-         *
-         * @param pattern The pattern.
+         * Detect a new pattern
+         * @param pattern The pattern
          */
         public void onPatternDetected(List<Cell> pattern, String SimplePattern) {
 
@@ -1190,280 +1022,5 @@ public class PatternDrawer extends View {
         public float lineEndX = Float.MIN_VALUE;
         public float lineEndY = Float.MIN_VALUE;
         public ValueAnimator lineAnimator;
-    } // classCellState
-
-    /**
-     * The parecelable for saving and restoring a lock pattern view.
-     */
-    private static class SavedState extends BaseSavedState {
-
-        @SuppressWarnings("unused")
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-        private final String mSerializedPattern;
-        private final int mDisplayMode;
-        private final boolean mInputEnabled;
-        private final boolean mInStealthMode;
-        private final boolean mTactileFeedbackEnabled;
-
-        /**
-         * Constructor called from {@link PatternDrawer#onSaveInstanceState()}
-         */
-        private SavedState(Parcelable superState, String serializedPattern,
-                           int displayMode, boolean inputEnabled, boolean inStealthMode,
-                           boolean tactileFeedbackEnabled) {
-            super(superState);
-            mSerializedPattern = serializedPattern;
-            mDisplayMode = displayMode;
-            mInputEnabled = inputEnabled;
-            mInStealthMode = inStealthMode;
-            mTactileFeedbackEnabled = tactileFeedbackEnabled;
-        }
-
-        /**
-         * Constructor called from {@link #CREATOR}
-         */
-        private SavedState(Parcel in) {
-            super(in);
-            mSerializedPattern = in.readString();
-            mDisplayMode = in.readInt();
-            mInputEnabled = (Boolean) in.readValue(null);
-            mInStealthMode = (Boolean) in.readValue(null);
-            mTactileFeedbackEnabled = (Boolean) in.readValue(null);
-        }
-
-        public String getSerializedPattern() {
-            return mSerializedPattern;
-        }
-
-        public int getDisplayMode() {
-            return mDisplayMode;
-        }
-
-        public boolean isInputEnabled() {
-            return mInputEnabled;
-        }
-
-        public boolean isInStealthMode() {
-            return mInStealthMode;
-        }
-
-        public boolean isTactileFeedbackEnabled() {
-            return mTactileFeedbackEnabled;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeString(mSerializedPattern);
-            dest.writeInt(mDisplayMode);
-            dest.writeValue(mInputEnabled);
-            dest.writeValue(mInStealthMode);
-            dest.writeValue(mTactileFeedbackEnabled);
-        }
-    }
-
-    public static class FloatAnimator {
-
-        /**
-         * Animation delay, in milliseconds.
-         */
-        private static final long ANIMATION_DELAY = 1;
-        private final float mStartValue, mEndValue;
-        private final long mDuration;
-        private float mAnimatedValue;
-        private List<EventListener> mEventListeners;
-        private Handler mHandler;
-        private long mStartTime;
-
-        /**
-         * Creates new instance.
-         *
-         * @param start    start value.
-         * @param end      end value.
-         * @param duration duration, in milliseconds. This should not be long, as delay value between animation frame is
-         *                 just 1 millisecond.
-         */
-        public FloatAnimator(float start, float end, long duration) {
-            mStartValue = start;
-            mEndValue = end;
-            mDuration = duration;
-
-            mAnimatedValue = mStartValue;
-        }// FloatAnimator()
-
-        /**
-         * Adds event listener.
-         *
-         * @param listener the listener.
-         */
-        public void addEventListener(@Nullable EventListener listener) {
-            if (listener == null) return;
-
-            mEventListeners.add(listener);
-        }// addEventListener()
-
-        /**
-         * Gets animated value.
-         *
-         * @return animated value.
-         */
-        public float getAnimatedValue() {
-            return mAnimatedValue;
-        }// getAnimatedValue()
-
-        /**
-         * Starts animating.
-         */
-        public void start() {
-            if (mHandler != null)
-                return;
-
-            notifyAnimationStart();
-
-            mStartTime = System.currentTimeMillis();
-
-            mHandler = new Handler();
-            mHandler.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    final Handler handler = mHandler;
-                    if (handler == null) return;
-
-                    final long elapsedTime = System.currentTimeMillis() - mStartTime;
-                    if (elapsedTime > mDuration) {
-                        mHandler = null;
-                        notifyAnimationEnd();
-                    } else {
-                        float fraction = mDuration > 0 ? (float) (elapsedTime) / mDuration : 1f;
-                        float delta = mEndValue - mStartValue;
-                        mAnimatedValue = mStartValue + delta * fraction;
-
-                        notifyAnimationUpdate();
-                        handler.postDelayed(this, ANIMATION_DELAY);
-                    }
-                }// run()
-
-            });
-        }// start()
-
-        /**
-         * Cancels animating.
-         */
-        public void cancel() {
-            if (mHandler == null) return;
-
-            mHandler.removeCallbacksAndMessages(null);
-            mHandler = null;
-
-            notifyAnimationCancel();
-            notifyAnimationEnd();
-        }// cancel()
-
-        /**
-         * Notifies all listeners that animation starts.
-         */
-        protected void notifyAnimationStart() {
-            final List<EventListener> listeners = mEventListeners;
-            if (listeners != null) {
-                for (EventListener listener : listeners)
-                    listener.onAnimationStart(this);
-            }// if
-        }// notifyAnimationStart()
-
-        /**
-         * Notifies all listeners that animation updates.
-         */
-        protected void notifyAnimationUpdate() {
-            final List<EventListener> listeners = mEventListeners;
-            if (listeners != null) {
-                for (EventListener listener : listeners)
-                    listener.onAnimationUpdate(this);
-            }// if
-        }// notifyAnimationUpdate()
-
-        /**
-         * Notifies all listeners that animation cancels.
-         */
-        protected void notifyAnimationCancel() {
-            final List<EventListener> listeners = mEventListeners;
-            if (listeners != null) {
-                for (EventListener listener : listeners)
-                    listener.onAnimationCancel(this);
-            }// if
-        }// notifyAnimationCancel()
-
-        /**
-         * Notifies all listeners that animation ends.
-         */
-        protected void notifyAnimationEnd() {
-            final List<EventListener> listeners = mEventListeners;
-            if (listeners != null) {
-                for (EventListener listener : listeners)
-                    listener.onAnimationEnd(this);
-            }// if
-        }// notifyAnimationEnd()
-
-        public interface EventListener {
-
-            /**
-             * Will be called when animation starts.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationStart(@NonNull FloatAnimator animator);
-
-            /**
-             * Will be called when new animated value is calculated.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationUpdate(@NonNull FloatAnimator animator);
-
-            /**
-             * Will be called when animation cancels.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationCancel(@NonNull FloatAnimator animator);
-
-            /**
-             * Will be called when animation ends.
-             *
-             * @param animator the animator.
-             */
-            void onAnimationEnd(@NonNull FloatAnimator animator);
-
-        }// EventListener
-
-        public static class SimpleEventListener implements EventListener {
-
-            @Override
-            public void onAnimationStart(@NonNull FloatAnimator animator) {
-            }//onAnimationStart()
-
-            @Override
-            public void onAnimationUpdate(@NonNull FloatAnimator animator) {
-            }//onAnimationUpdate()
-
-            @Override
-            public void onAnimationCancel(@NonNull FloatAnimator animator) {
-            }//onAnimationCancel()
-
-            @Override
-            public void onAnimationEnd(@NonNull FloatAnimator animator) {
-            }//onAnimationEnd()
-
-        }// SimpleEventListener
-
-    }
+    } // class CellState
 }
