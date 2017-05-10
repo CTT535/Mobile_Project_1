@@ -88,10 +88,10 @@ public class PatternActivity extends AppCompatActivity {
                 break;
         }
 
-        // 5 seconds coutdowm timer
-        new CountDownTimer(5000, 1000) {
+        // 5.5 seconds coutdowm timer
+        new CountDownTimer(5500, 1000) {
             public void onTick(long millisUntilFinished) {
-                timeText.setText(millisUntilFinished + "ms left");
+                timeText.setText(millisUntilFinished / 1000 + "s left");
             }
 
             public void onFinish() {

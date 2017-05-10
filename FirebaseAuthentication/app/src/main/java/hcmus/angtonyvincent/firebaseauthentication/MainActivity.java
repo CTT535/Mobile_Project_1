@@ -11,11 +11,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,13 +33,14 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        //mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Press Back to exit this game", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Tap on the screen to enter\nPress Back to exit this game", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -74,59 +73,38 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-            TextView description = (TextView) rootView.findViewById(R.id.menu_description_text);
-            Button action = (Button) rootView.findViewById(R.id.menu_action_button);
-
-            int number = getArguments().getInt(ARG_SECTION_NUMBER);
+            final int number = getArguments().getInt(ARG_SECTION_NUMBER);
 
             switch (number) {
                 case 1:
                     rootView.setBackgroundResource(R.drawable.menu1);
-                    description.setText("Play with computer");
-                    action.setText("Play");
-                    action.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
-                            startActivity(patternIntent);
-                            getActivity().finish();
-                        }
-                    });
                     break;
                 case 2:
                     rootView.setBackgroundResource(R.drawable.menu2);
-                    description.setText("Play with other players");
-                    action.setText("Connect");
-                    action.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Toast.makeText(getContext(), "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
-                        }
-                    });
                     break;
                 case 3:
                     rootView.setBackgroundResource(R.drawable.menu3);
-                    description.setText("Purchase new item");
-                    action.setText("Go");
-                    action.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Toast.makeText(getContext(), "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
-                        }
-                    });
                     break;
                 case 4:
                     rootView.setBackgroundResource(R.drawable.menu4);
-                    description.setText("Watch the tutorial");
-                    action.setText("Watch");
-                    action.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Toast.makeText(getContext(), "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
-                        }
-                    });
                     break;
             }
+
+            rootView.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+
+                    if(event.getAction() == MotionEvent.ACTION_UP){
+                        switch (number) {
+                            case 1:
+                                Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
+                                startActivity(patternIntent);
+                                getActivity().finish();
+                                break;
+                        }
+                    }
+                    return true;
+                }
+            });
 
             return rootView;
         }
