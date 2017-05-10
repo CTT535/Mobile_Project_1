@@ -1,5 +1,6 @@
 package hcmus.angtonyvincent.firebaseauthentication;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -12,7 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,29 +71,60 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            TextView description = (TextView) rootView.findViewById(R.id.menu_description_text);
+            Button action = (Button) rootView.findViewById(R.id.menu_action_button);
 
             int number = getArguments().getInt(ARG_SECTION_NUMBER);
 
             switch (number) {
                 case 1:
                     rootView.setBackgroundResource(R.drawable.menu1);
-                    textView.setText("Play with computer");
+                    description.setText("Play with computer");
+                    action.setText("Play");
+                    action.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
+                            startActivity(patternIntent);
+                            getActivity().finish();
+                        }
+                    });
                     break;
                 case 2:
                     rootView.setBackgroundResource(R.drawable.menu2);
-                    textView.setText("Play with other players");
+                    description.setText("Play with other players");
+                    action.setText("Connect");
+                    action.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(getContext(), "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     break;
                 case 3:
                     rootView.setBackgroundResource(R.drawable.menu3);
-                    textView.setText("Buy something new");
+                    description.setText("Purchase new item");
+                    action.setText("Go");
+                    action.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(getContext(), "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     break;
                 case 4:
                     rootView.setBackgroundResource(R.drawable.menu4);
-                    textView.setText("Watch the tutorial");
+                    description.setText("Watch the tutorial");
+                    action.setText("Watch");
+                    action.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(getContext(), "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     break;
             }
 

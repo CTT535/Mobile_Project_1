@@ -6,9 +6,17 @@
     tools:context="hcmus.angtonyvincent.firebaseauthentication.MainActivity$PlaceholderFragment">
 
     <TextView
-        android:id="@+id/section_label"
+        android:id="@+id/menu_description_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="start|top"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:id="@+id/menu_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"/>
 
 </RelativeLayout>

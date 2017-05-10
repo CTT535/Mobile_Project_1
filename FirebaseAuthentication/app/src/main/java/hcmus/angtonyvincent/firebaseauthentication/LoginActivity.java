@@ -75,8 +75,8 @@ public class LoginActivity extends AppCompatActivity {
         playGameButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent playGameIntent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(playGameIntent);
+                Intent playIntent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(playIntent);
                 finish();
             }
         });

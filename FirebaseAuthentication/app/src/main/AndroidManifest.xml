@@ -19,8 +19,10 @@
         <activity
             android:name=".MainActivity"
             android:label="MainActivity"
-            android:theme="@style/AppTheme">
-        </activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".GameplayActivity" />
+        <activity android:name=".PatternActivity" />
+        <activity android:name=".ResultActivity"></activity>
     </application>
 
 </manifest>
