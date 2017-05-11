@@ -98,10 +98,17 @@ public class PatternDrawer extends View {
     private boolean mEnableHapticFeedback = true;
     private boolean mPatternInProgress = false;
 
-    private float mHitFactor = 0.6f;
+    /**
+     * The factor determines if a cell is hit
+     */
+    private float mHitFactor = 0.5f;
 
+    /**
+     * The size of a cell
+     */
     private float mSquareWidth;
     private float mSquareHeight;
+
     private int mRegularColor;
     private int mErrorColor;
     private int mSuccessColor;

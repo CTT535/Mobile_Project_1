@@ -75,7 +75,6 @@ public class GameplayActivity extends AppCompatActivity {
                     continueIntent.putExtra(SUCCESS_MESSAGE, currentLevel);
                     startActivity(continueIntent);
                     finish();
-
                 } else {
                     patternDrawer.setDisplayMode(PatternDrawer.DisplayMode.Wrong);
                 }
@@ -83,8 +82,8 @@ public class GameplayActivity extends AppCompatActivity {
             }
         });
 
-        // 10 seconds coutdowm timer
-        timer = new CountDownTimer(10000, 1000) {
+        // 11 seconds coutdowm timer
+        timer = new CountDownTimer(11000, 1000) {
             public void onTick(long millisUntilFinished) {
                 time.setText(millisUntilFinished / 1000 + "s left");
             }
