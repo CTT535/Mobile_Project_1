@@ -49,6 +49,8 @@ public class GameplayActivity extends AppCompatActivity {
         surrender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                timer.cancel(); // cancel the countdown
+
                 Intent surrenderIntent = new Intent(GameplayActivity.this, ResultActivity.class);
                 startActivity(surrenderIntent);
                 finish();

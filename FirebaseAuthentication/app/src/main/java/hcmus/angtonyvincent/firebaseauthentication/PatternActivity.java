@@ -49,44 +49,48 @@ public class PatternActivity extends AppCompatActivity {
 
         switch (currentLevel) {
             case 1:
+                // L
                 correctPattern = "14789";
                 image.setImageResource(R.drawable.p14789);
                 break;
             case 2:
+                // Z
                 correctPattern = "1235789";
                 image.setImageResource(R.drawable.p1235789);
                 break;
             case 3:
+                // N
                 correctPattern = "7415963";
                 image.setImageResource(R.drawable.p7415963);
                 break;
             case 4:
+                // S
                 correctPattern = "321456987";
                 image.setImageResource(R.drawable.p321456987);
                 break;
             case 5:
-                correctPattern = "15896247";
-                image.setImageResource(R.drawable.p15896247);
-                break;
-            case 6:
-                correctPattern = "68321547";
-                image.setImageResource(R.drawable.p68321547);
-                break;
-            case 7:
                 correctPattern = "741236985";
                 image.setImageResource(R.drawable.p741236985);
                 break;
+            case 6:
+                correctPattern = "741685239";
+                image.setImageResource(R.drawable.p741685239);
+                break;
+            case 7:
+                correctPattern = "68321547";
+                image.setImageResource(R.drawable.p68321547);
+                break;
             case 8:
+                correctPattern = "15896247";
+                image.setImageResource(R.drawable.p15896247);
+                break;
+            case 9:
                 correctPattern = "76183";
                 image.setImageResource(R.drawable.p76183);
                 break;
-            case 9:
+            case 10:
                 correctPattern = "18349276";
                 image.setImageResource(R.drawable.p18349276);
-                break;
-            case 10:
-                correctPattern = "741685239";
-                image.setImageResource(R.drawable.p741685239);
                 break;
         }
 

@@ -14,6 +14,7 @@
         android:layout_alignParentTop="true"
         android:text="How to draw this pattern?"
         android:textAlignment="center"
+        android:textColor="#ff000000"
         android:textSize="25sp"
         android:id="@+id/textView" />
 
@@ -30,6 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:textAlignment="center"
+        android:textColor="#ff000000"
         android:textSize="50sp" />
 
 </RelativeLayout>

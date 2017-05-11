@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -41,8 +40,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Tap on the screen to enter\nPress Back to exit this game", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Toast.makeText(view.getContext(), "Tap on the screen to enter\nPress Back to exit this game", Toast.LENGTH_SHORT).show();
             }
         });
 
