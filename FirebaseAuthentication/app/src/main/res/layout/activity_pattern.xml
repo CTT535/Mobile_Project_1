@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pattern_content"
-    android:background="@drawable/background"
+    android:background="@drawable/bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="hcmus.angtonyvincent.firebaseauthentication.PatternActivity">
@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:text="How to draw this pattern?"
         android:textAlignment="center"
-        android:textColor="#ff000000"
+        android:textColor="#ffffffff"
         android:textSize="25sp"
         android:id="@+id/textView" />
 
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:textAlignment="center"
-        android:textColor="#ff000000"
+        android:textColor="#ffffffff"
         android:textSize="50sp" />
 
 </RelativeLayout>
