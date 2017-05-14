@@ -78,15 +78,19 @@ public class MainActivity extends AppCompatActivity {
 
             switch (number) {
                 case 1:
+                    // Single Player
                     image.setBackgroundResource(R.drawable.single_player);
                     break;
                 case 2:
+                    // Multi Player
                     image.setBackgroundResource(R.drawable.multi_player);
                     break;
                 case 3:
+                    // Shop
                     image.setBackgroundResource(R.drawable.shop);
                     break;
                 case 4:
+                    // Tutorial
                     image.setBackgroundResource(R.drawable.tutorial);
                     break;
             }
@@ -96,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     if(event.getAction() == MotionEvent.ACTION_UP){
                         switch (number) {
                             case 1:
+                                // Single Player
                                 Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
                                 startActivity(patternIntent);
                                 getActivity().finish();
