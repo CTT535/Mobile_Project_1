@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(view.getContext(), "Tap on the text to enter\nPress Back to exit this game", Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), "Tap on the image to enter\nPress back to exit this game", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -74,23 +75,28 @@ public class MainActivity extends AppCompatActivity {
             final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             final int number = getArguments().getInt(ARG_SECTION_NUMBER);
 
+            TextView text = (TextView) rootView.findViewById(R.id.fragment_text);
             ImageView image = (ImageView) rootView.findViewById(R.id.fragment_image);
 
             switch (number) {
                 case 1:
                     // Single Player
+                    text.setText("Start a new journey");
                     image.setBackgroundResource(R.drawable.single_player);
                     break;
                 case 2:
                     // Multi Player
+                    text.setText("Play with your friends");
                     image.setBackgroundResource(R.drawable.multi_player);
                     break;
                 case 3:
                     // Shop
+                    text.setText("Purchase a new item");
                     image.setBackgroundResource(R.drawable.shop);
                     break;
                 case 4:
                     // Tutorial
+                    text.setText("Watch the tutorial video");
                     image.setBackgroundResource(R.drawable.tutorial);
                     break;
             }

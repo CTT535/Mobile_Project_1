@@ -19,7 +19,7 @@ public class PatternActivity extends AppCompatActivity {
     private int currentLevel;
     private String correctPattern;
 
-    private final int MAX_LEVEL = 7;
+    private final int MAX_LEVEL = 10;
     public static final String LEVEL_MESSAGE = "LEVEL";
     public static final String PATTERN_MESSAGE = "PATTERN";
 
@@ -83,9 +83,35 @@ public class PatternActivity extends AppCompatActivity {
         switch (currentLevel) {
             case 1:
                 if (head) {
+                    // 1
+                    correctPattern = "1538";
+                    image.setImageResource(R.drawable.p1538);
+                }
+                else {
+                    // Y
+                    correctPattern = "4258";
+                    image.setImageResource(R.drawable.p4258);
+                }
+                break;
+
+            case 2:
+                if (head) {
                     // L
                     correctPattern = "14789";
                     image.setImageResource(R.drawable.p14789);
+                }
+                else {
+                    // A
+                    correctPattern = "74269";
+                    image.setImageResource(R.drawable.p74269);
+                }
+                break;
+
+            case 3:
+                if (head) {
+                    // C
+                    correctPattern = "3214789";
+                    image.setImageResource(R.drawable.p3214789);
                 }
                 else {
                     // U
@@ -94,7 +120,7 @@ public class PatternActivity extends AppCompatActivity {
                 }
                 break;
 
-            case 2:
+            case 4:
                 if(head) {
                     // Z
                     correctPattern = "1235789";
@@ -107,7 +133,7 @@ public class PatternActivity extends AppCompatActivity {
                 }
                 break;
 
-            case 3:
+            case 5:
                 if(head) {
                     // S
                     correctPattern = "321456987";
@@ -120,7 +146,20 @@ public class PatternActivity extends AppCompatActivity {
                 }
                 break;
 
-            case 4:
+            case 6:
+                if(head) {
+                    // P
+                    correctPattern = "4563217";
+                    image.setImageResource(R.drawable.p4563217);
+                }
+                else {
+                    // B
+                    correctPattern = "74123568";
+                    image.setImageResource(R.drawable.p74123568);
+                }
+                break;
+
+            case 7:
                 if(head) {
                     correctPattern = "15896247";
                     image.setImageResource(R.drawable.p15896247);
@@ -131,7 +170,7 @@ public class PatternActivity extends AppCompatActivity {
                 }
                 break;
 
-            case 5:
+            case 8:
                 if(head) {
                     correctPattern = "76183";
                     image.setImageResource(R.drawable.p76183);
@@ -142,7 +181,7 @@ public class PatternActivity extends AppCompatActivity {
                 }
                 break;
 
-            case 6:
+            case 9:
                 if (head) {
                     correctPattern = "4231786";
                     image.setImageResource(R.drawable.p4231786);
@@ -153,7 +192,7 @@ public class PatternActivity extends AppCompatActivity {
                 }
                 break;
 
-            case 7:
+            case 10:
                 if (head) {
                     correctPattern = "18349276";
                     image.setImageResource(R.drawable.p18349276);
