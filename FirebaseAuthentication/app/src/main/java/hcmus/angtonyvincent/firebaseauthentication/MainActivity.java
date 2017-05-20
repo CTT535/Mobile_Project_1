@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import hcmus.angtonyvincent.firebaseauthentication.list_room.ListRoomActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -106,12 +108,18 @@ public class MainActivity extends AppCompatActivity {
                     if(event.getAction() == MotionEvent.ACTION_UP){
                         switch (number) {
                             case 1:
-                                // Single Player
+                                // Single player
                                 Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
                                 startActivity(patternIntent);
                                 getActivity().finish();
                                 break;
                             case 2:
+                                // Multi player
+                                Intent listRoomIntent = new Intent(getActivity(), ListRoomActivity.class);
+                                startActivity(listRoomIntent);
+                                getActivity().finish();
+                                break;
+
                             case 3:
                             case 4:
                                 Toast.makeText(getContext(), "This section is now not available", Toast.LENGTH_SHORT).show();
