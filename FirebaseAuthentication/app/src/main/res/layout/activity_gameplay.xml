@@ -8,7 +8,8 @@
     android:layout_height="match_parent"
     tools:context=".GameplayActivity">
 
-    <hcmus.angtonyvincent.firebaseauthentication.PatternDrawer xmlns:lockview="http://schemas.android.com/apk/res-auto"
+    <hcmus.angtonyvincent.firebaseauthentication.PatternDrawer
+        xmlns:lockview="http://schemas.android.com/apk/res-auto"
         android:id="@+id/pattern"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
