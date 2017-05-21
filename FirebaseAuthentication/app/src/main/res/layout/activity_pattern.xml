@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pattern_content"
     android:background="@drawable/bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="hcmus.angtonyvincent.firebaseauthentication.PatternActivity">
+    tools:context=".PatternActivity">
 
     <TextView
         android:layout_width="match_parent"
@@ -22,16 +22,34 @@
         android:id="@+id/pattern_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        />
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:id="@+id/pattern_level_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/pattern_time_text"
+        android:layout_alignParentLeft="true"
+        android:text="Level"
+        android:textColor="#ffffffff"
+        android:textSize="50sp" />
 
     <TextView
         android:id="@+id/pattern_time_text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:textAlignment="center"
+        android:layout_alignParentLeft="true"
+        android:text="Time"
         android:textColor="#ffffffff"
         android:textSize="50sp" />
+
+    <Button
+        android:id="@+id/pattern_continue_button"
+        android:layout_width="wrap_content"
+        android:layout_height="100sp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Continue" />
 
 </RelativeLayout>

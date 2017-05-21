@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/gameplay_content"
     android:background="@drawable/bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="hcmus.angtonyvincent.firebaseauthentication.GameplayActivity">
+    tools:context=".GameplayActivity">
 
     <hcmus.angtonyvincent.firebaseauthentication.PatternDrawer xmlns:lockview="http://schemas.android.com/apk/res-auto"
         android:id="@+id/pattern"
@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
+        android:text="Level"
         android:textColor="#ffffffff"
         android:textSize="50sp" />
 
@@ -30,16 +31,18 @@
         android:id="@+id/gameplay_time_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70sp"
+        android:layout_below="@+id/gameplay_level_text"
         android:layout_alignParentLeft="true"
+        android:text="Time"
         android:textColor="#ffffffff"
         android:textSize="50sp" />
 
     <Button
         android:id="@+id/gameplay_surrender_button"
-        android:layout_width="120sp"
-        android:layout_height="120sp"
+        android:layout_width="wrap_content"
+        android:layout_height="100sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:text="Surrender" />
+
 </RelativeLayout>

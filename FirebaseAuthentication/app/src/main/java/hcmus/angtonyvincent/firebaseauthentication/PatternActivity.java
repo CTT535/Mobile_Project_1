@@ -5,6 +5,8 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,9 +14,11 @@ import java.util.Random;
 
 public class PatternActivity extends AppCompatActivity {
 
+    private TextView level;
     private TextView time;
     private ImageView image;
     private CountDownTimer timer;
+    private Button continueBtn;
 
     private int currentLevel;
     private String correctPattern;
@@ -47,8 +51,26 @@ public class PatternActivity extends AppCompatActivity {
         }
 
         time = (TextView) findViewById(R.id.pattern_time_text);
-        image = (ImageView) findViewById(R.id.pattern_image);
+        level = (TextView) findViewById(R.id.pattern_level_text);
+        level.setText("Level " + currentLevel);
 
+        continueBtn = (Button) findViewById(R.id.pattern_continue_button);
+        continueBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer.cancel(); // cancel the countdown
+
+                Intent intent = new Intent(PatternActivity.this, GameplayActivity.class);
+                Bundle extras = new Bundle();
+                extras.putInt(LEVEL_MESSAGE, currentLevel);
+                extras.putString(PATTERN_MESSAGE, correctPattern);
+                intent.putExtras(extras);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        image = (ImageView) findViewById(R.id.pattern_image);
         displayPattern();
 
         // 5 seconds coutdowm timer
