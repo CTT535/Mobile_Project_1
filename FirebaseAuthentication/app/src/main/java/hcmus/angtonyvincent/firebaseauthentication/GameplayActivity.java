@@ -10,12 +10,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.Socket;
 import java.util.List;
+
+import hcmus.angtonyvincent.firebaseauthentication.connection.ConnectionActionListener;
+import hcmus.angtonyvincent.firebaseauthentication.room.DeviceInRoom;
+import hcmus.angtonyvincent.firebaseauthentication.room.ListDeviceInRoomFragment;
+import hcmus.angtonyvincent.firebaseauthentication.room.RequestFactory;
+import hcmus.angtonyvincent.firebaseauthentication.room.RoomActivity;
 
 import static hcmus.angtonyvincent.firebaseauthentication.PatternActivity.LEVEL_MESSAGE;
 import static hcmus.angtonyvincent.firebaseauthentication.PatternActivity.PATTERN_MESSAGE;
 
-public class GameplayActivity extends AppCompatActivity {
+public class GameplayActivity extends AppCompatActivity implements ConnectionActionListener {
 
     private Button surrender;
     private TextView level;
@@ -24,6 +34,8 @@ public class GameplayActivity extends AppCompatActivity {
     private CountDownTimer timer;
 
     private PatternDrawer patternDrawer;
+
+    private static String TAG = "GameplayActivity";
 
     private String correctPattern;
     private int currentLevel;
@@ -51,9 +63,18 @@ public class GameplayActivity extends AppCompatActivity {
             public void onClick(View v) {
                 timer.cancel(); // cancel the countdown
 
-                Intent surrenderIntent = new Intent(GameplayActivity.this, ResultActivity.class);
-                startActivity(surrenderIntent);
-                finish();
+                if(MainActivity.getPlayMode() == MainActivity.MODE_MULTI_PLAYER){
+                    ListResultActivity.addResult(new ListResultActivity.Result(RoomActivity.getThisDeviceInRoom(), currentLevel, (int)System.currentTimeMillis()));
+                    ListDeviceInRoomFragment.sendMessageToAll(RequestFactory.createSignalResultNotification(RoomActivity.getRoomOwner(), currentLevel, (int) System.currentTimeMillis()).toString());
+                    Intent surrenderIntent = new Intent(GameplayActivity.this, ListResultActivity.class);
+                    startActivity(surrenderIntent);
+                    finish();
+                }
+                else {
+                    Intent surrenderIntent = new Intent(GameplayActivity.this, ResultActivity.class);
+                    startActivity(surrenderIntent);
+                    finish();
+                }
             }
         });
 
@@ -91,9 +112,18 @@ public class GameplayActivity extends AppCompatActivity {
             public void onFinish() {
                 time.setText("Time over");
 
-                Intent timeUpItent = new Intent(GameplayActivity.this, ResultActivity.class);
-                startActivity(timeUpItent);
-                finish();
+                if(MainActivity.getPlayMode() == MainActivity.MODE_MULTI_PLAYER){
+                    ListResultActivity.addResult(new ListResultActivity.Result(RoomActivity.getThisDeviceInRoom(), currentLevel, (int)System.currentTimeMillis()));
+                    ListDeviceInRoomFragment.sendMessageToAll(RequestFactory.createSignalResultNotification(RoomActivity.getRoomOwner(), currentLevel, (int) System.currentTimeMillis()).toString());
+                    Intent surrenderIntent = new Intent(GameplayActivity.this, ListResultActivity.class);
+                    startActivity(surrenderIntent);
+                    finish();
+                }
+                else {
+                    Intent timeUpIntent = new Intent(GameplayActivity.this, ResultActivity.class);
+                    startActivity(timeUpIntent);
+                    finish();
+                }
             }
         };
         timer.start();
@@ -104,4 +134,35 @@ public class GameplayActivity extends AppCompatActivity {
         // do nothing
     } // onBackPressed
 
+    @Override
+    public void onMessageReceived(Socket socket, String message) {
+        new Thread(new TreatRequestTask(message)).start();
+    }
+
+    public class TreatRequestTask implements Runnable {
+
+        String m_request;
+        public TreatRequestTask(String request){
+            m_request = request;
+        }
+
+        @Override
+        public void run() {
+            try {
+                JSONObject jsonObj = new JSONObject(m_request);
+                String signal = jsonObj.get("signal").toString();
+                Log.d(TAG, "signal: " + signal);
+                switch (signal){
+                    case RequestFactory.SIGNAL_NOTIFICATE_RESULT:
+                        JSONObject srcDevice = (JSONObject) jsonObj.get("sourceDevice");
+                        int level = jsonObj.getInt("level");
+                        int timeGameEnd = jsonObj.getInt("time");
+                        ListResultActivity.addResult(new ListResultActivity.Result(new DeviceInRoom(srcDevice), level, timeGameEnd));
+                        break;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

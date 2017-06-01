@@ -7,7 +7,6 @@ import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.Log;
-import android.widget.Toast;
 
 import hcmus.angtonyvincent.firebaseauthentication.connection.Connection;
 import hcmus.angtonyvincent.firebaseauthentication.room.DeviceInRoom;
@@ -18,7 +17,7 @@ import hcmus.angtonyvincent.firebaseauthentication.room.RoomInfo;
  */
 
 public class NsdHelper extends Application{
-    Context mContext;
+    static Context mContext;
 
     static NsdManager mNsdManager;
     static NsdManager.ResolveListener mResolveListener;
@@ -30,17 +29,17 @@ public class NsdHelper extends Application{
     public static final String SERVICE_TYPE = "_http._tcp.";
 
     public static final String TAG = "NsdHelper";
-    public static String mServiceName = "GameServiceXXX";
+    public static String mServiceName = "Game Service";
 
 
-    NsdServiceInfo mService;
+    static NsdServiceInfo mService;
 
     public NsdHelper(Context context) {
         Log.d(TAG, "move context");
         mContext = context;
     }
 
-    public void initializeNsd() {
+    public static void initializeNsd() {
         Log.d(TAG, "initializeNsd");
         if(!init) {
             mNsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
@@ -51,7 +50,7 @@ public class NsdHelper extends Application{
         }
     }
 
-    private void initializeDiscoveryListener() {
+    private static void initializeDiscoveryListener() {
         mDiscoveryListener = new NsdManager.DiscoveryListener() {
 
             @Override
@@ -123,7 +122,7 @@ public class NsdHelper extends Application{
         };
     }
 
-    private void initializeResolveListener() {
+    private static void initializeResolveListener() {
         mResolveListener = new NsdManager.ResolveListener() {
 
             @Override
@@ -148,15 +147,16 @@ public class NsdHelper extends Application{
         };
     }
 
-    private void initializeRegistrationListener() {
+    private static void initializeRegistrationListener() {
         mRegistrationListener = new NsdManager.RegistrationListener() {
 
             @Override
             public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
                 Log.d(TAG, "ServiceRegistered");
                 mServiceName = NsdServiceInfo.getServiceName();
-                Toast.makeText(mContext, "service name of this device: " + mServiceName, Toast.LENGTH_SHORT).show();
-                ((ListRoomActivity)mContext).onRoomCreate(new RoomInfo(mServiceName, new DeviceInRoom(NsdServiceInfo.getHost(), NsdServiceInfo.getPort(), "", true)));
+                ((ListRoomActivity)mContext).onRoomCreate(
+                        new RoomInfo(mServiceName,
+                                new DeviceInRoom(NsdServiceInfo.getHost(), NsdServiceInfo.getPort(), "", true)));
             }
 
             @Override
@@ -176,12 +176,10 @@ public class NsdHelper extends Application{
 
     public static void registerService() {
         //register server
-        int port = Connection.registreServer(Connection.PORT);
-        //int port = mServerSocket.getLocalPort();
-
-        if (port != -1) {
-            //register service on this server
-            if(!registered) {
+        if(!registered) {
+            int port = Connection.registreServer(Connection.PORT);
+            //int port = mServerSocket.getLocalPort();
+            if (port != -1) {
                 Log.d(TAG, "register service on port: " + port);
                 NsdServiceInfo serviceInfo = new NsdServiceInfo();
                 serviceInfo.setPort(port);
@@ -191,10 +189,10 @@ public class NsdHelper extends Application{
                 mNsdManager.registerService(
                         serviceInfo, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
                 registered = true;
+
+            } else {
+                Log.d(TAG, "server is bound");
             }
-        }
-        else{
-            Log.d(TAG, "server is bound");
         }
     }
 

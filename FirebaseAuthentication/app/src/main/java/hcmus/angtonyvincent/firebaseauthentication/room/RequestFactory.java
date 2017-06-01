@@ -14,6 +14,7 @@ public class RequestFactory {
     public static final String SIGNAL_REQUEST_GET_OUT = "04";
     public static final String SIGNAL_RESPONSE_LIST_DEVICE = "03"; // send a response with the list of member in room 03
     public static final String SIGNAL_GET_LIST_DEVICE = "03";      // receive the list 03
+    public static final String SIGNAL_NOTIFICATE_RESULT = "05";      // receive the list 03
 
 
     public static JSONObject createRequestParticipate(DeviceInRoom srcDevice){
@@ -56,6 +57,21 @@ public class RequestFactory {
         try {
             obj.put("signal", SIGNAL_REQUEST_GET_OUT);
             obj.put("sourceDevice", srcDevice.toJSONObject());
+            return obj;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //who win or who loose, when
+    public static JSONObject createSignalResultNotification(DeviceInRoom srcDevice, int level, int timeEndGame){
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("signal", SIGNAL_NOTIFICATE_RESULT);
+            obj.put("sourceDevice", srcDevice.toJSONObject());
+            obj.put("time", timeEndGame);
+            obj.put("level", level);
             return obj;
         } catch (JSONException e) {
             e.printStackTrace();

@@ -5,14 +5,26 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.Socket;
 import java.util.Random;
 
-public class PatternActivity extends AppCompatActivity {
+import hcmus.angtonyvincent.firebaseauthentication.connection.Connection;
+import hcmus.angtonyvincent.firebaseauthentication.connection.ConnectionActionListener;
+import hcmus.angtonyvincent.firebaseauthentication.room.DeviceInRoom;
+import hcmus.angtonyvincent.firebaseauthentication.room.ListDeviceInRoomFragment;
+import hcmus.angtonyvincent.firebaseauthentication.room.RequestFactory;
+import hcmus.angtonyvincent.firebaseauthentication.room.RoomActivity;
+
+public class PatternActivity extends AppCompatActivity implements ConnectionActionListener {
 
     private TextView level;
     private TextView time;
@@ -26,6 +38,7 @@ public class PatternActivity extends AppCompatActivity {
     private final int MAX_LEVEL = 10;
     public static final String LEVEL_MESSAGE = "LEVEL";
     public static final String PATTERN_MESSAGE = "PATTERN";
+    private static String TAG = "PatternActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +47,35 @@ public class PatternActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Bundle extras = getIntent().getExtras();
+
+        if(MainActivity.getPlayMode() == MainActivity.MODE_MULTI_PLAYER){
+            //inform that this activity will receive the request
+            new Connection(this);
+            //called from RoomActivity
+            if(extras == null){
+                //reset result list
+                ListResultActivity.clear();
+            }
+        }
+
         if (extras != null) {
             // this activity is called from GameActivity
             currentLevel = extras.getInt(GameplayActivity.SUCCESS_MESSAGE);
 
             if (currentLevel > MAX_LEVEL) {
-                Intent quitIntent = new Intent(PatternActivity.this, ResultActivity.class);
-                startActivity(quitIntent);
-                finish();
-                
+                if(MainActivity.getPlayMode() == MainActivity.MODE_MULTI_PLAYER) {
+                    ListResultActivity.addResult(new ListResultActivity.Result(RoomActivity.getThisDeviceInRoom(), currentLevel, (int) System.currentTimeMillis()));
+                    ListDeviceInRoomFragment.sendMessageToAll(RequestFactory.createSignalResultNotification(RoomActivity.getRoomOwner(), currentLevel, (int) System.currentTimeMillis()).toString());
+                    Intent winIntent = new Intent(this, ListResultActivity.class);
+                    startActivity(winIntent);
+                    finish();
+                }
+                else {
+                    Intent quitIntent = new Intent(PatternActivity.this, ResultActivity.class);
+                    startActivity(quitIntent);
+                    finish();
+                }
+
                 return; // exit onCreate
             }
         } else {
@@ -107,12 +140,10 @@ public class PatternActivity extends AppCompatActivity {
                 if (head) {
                     // 1
                     correctPattern = "1538";
-                    image.setImageResource(R.drawable.p1538);
                 }
                 else {
                     // Y
                     correctPattern = "4258";
-                    image.setImageResource(R.drawable.p4258);
                 }
                 break;
 
@@ -120,12 +151,10 @@ public class PatternActivity extends AppCompatActivity {
                 if (head) {
                     // L
                     correctPattern = "14789";
-                    image.setImageResource(R.drawable.p14789);
                 }
                 else {
                     // A
                     correctPattern = "74269";
-                    image.setImageResource(R.drawable.p74269);
                 }
                 break;
 
@@ -133,12 +162,10 @@ public class PatternActivity extends AppCompatActivity {
                 if (head) {
                     // C
                     correctPattern = "3214789";
-                    image.setImageResource(R.drawable.p3214789);
                 }
                 else {
                     // U
                     correctPattern = "1478963";
-                    image.setImageResource(R.drawable.p1478963);
                 }
                 break;
 
@@ -146,12 +173,10 @@ public class PatternActivity extends AppCompatActivity {
                 if(head) {
                     // Z
                     correctPattern = "1235789";
-                    image.setImageResource(R.drawable.p1235789);
                 }
                 else {
                     // N
                     correctPattern = "7415963";
-                    image.setImageResource(R.drawable.p7415963);
                 }
                 break;
 
@@ -159,12 +184,10 @@ public class PatternActivity extends AppCompatActivity {
                 if(head) {
                     // S
                     correctPattern = "321456987";
-                    image.setImageResource(R.drawable.p321456987);
                 }
                 else {
                     // G
                     correctPattern = "321478965";
-                    image.setImageResource(R.drawable.p321478965);
                 }
                 break;
 
@@ -172,57 +195,83 @@ public class PatternActivity extends AppCompatActivity {
                 if(head) {
                     // P
                     correctPattern = "4563217";
-                    image.setImageResource(R.drawable.p4563217);
                 }
                 else {
                     // B
                     correctPattern = "74123568";
-                    image.setImageResource(R.drawable.p74123568);
                 }
                 break;
 
             case 7:
                 if(head) {
                     correctPattern = "15896247";
-                    image.setImageResource(R.drawable.p15896247);
                 }
                 else {
                     correctPattern = "68321547";
-                    image.setImageResource(R.drawable.p68321547);
                 }
                 break;
 
             case 8:
                 if(head) {
                     correctPattern = "76183";
-                    image.setImageResource(R.drawable.p76183);
                 }
                 else {
                     correctPattern = "741685239";
-                    image.setImageResource(R.drawable.p741685239);
                 }
                 break;
 
             case 9:
                 if (head) {
                     correctPattern = "4231786";
-                    image.setImageResource(R.drawable.p4231786);
                 }
                 else {
                     correctPattern = "65213987";
-                    image.setImageResource(R.drawable.p65213987);
                 }
                 break;
 
             case 10:
                 if (head) {
                     correctPattern = "18349276";
-                    image.setImageResource(R.drawable.p18349276);
                 }
                 else {
                     correctPattern = "427538619";
-                    image.setImageResource(R.drawable.p427538619);
                 }
+                break;
         }
+
+        // set the pattern to display
+        image.setImageResource(getResources().getIdentifier("p" + correctPattern, "drawable", getPackageName()));
     } // displayPattern
+
+    @Override
+    public void onMessageReceived(Socket socket, String message) {
+        new Thread(new TreatRequestTask(message)).start();
+    }
+
+    public class TreatRequestTask implements Runnable {
+
+        String m_request;
+        public TreatRequestTask(String request){
+            m_request = request;
+        }
+
+        @Override
+        public void run() {
+            try {
+                JSONObject jsonObj = new JSONObject(m_request);
+                String signal = jsonObj.get("signal").toString();
+                Log.d(TAG, "signal: " + signal);
+                switch (signal){
+                    case RequestFactory.SIGNAL_NOTIFICATE_RESULT:
+                        JSONObject srcDevice = (JSONObject) jsonObj.get("sourceDevice");
+                        int level = jsonObj.getInt("level");
+                        int timeGameEnd = jsonObj.getInt("time");
+                        ListResultActivity.addResult(new ListResultActivity.Result(new DeviceInRoom(srcDevice), level, timeGameEnd));
+                        break;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

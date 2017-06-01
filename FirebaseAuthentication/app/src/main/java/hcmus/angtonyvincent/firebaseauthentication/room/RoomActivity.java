@@ -22,20 +22,23 @@ import java.net.UnknownHostException;
 import hcmus.angtonyvincent.firebaseauthentication.PatternActivity;
 import hcmus.angtonyvincent.firebaseauthentication.R;
 import hcmus.angtonyvincent.firebaseauthentication.connection.Connection;
+import hcmus.angtonyvincent.firebaseauthentication.connection.ConnectionActionListener;
 import hcmus.angtonyvincent.firebaseauthentication.list_room.ListRoomActivity;
 import hcmus.angtonyvincent.firebaseauthentication.list_room.NsdHelper;
 
-public class RoomActivity extends AppCompatActivity {
+public class RoomActivity extends AppCompatActivity implements ConnectionActionListener {
 
     private static final String TAG = "RoomActivity";
     TextView tv_roomName;
     ListDeviceInRoomFragment m_deviceList;
     boolean appfinished;
     Connection m_connection;
-    boolean isRoomOwner = false;
+    static boolean isRoomOwner = false;
     private Button bt_start;
-    DeviceInRoom m_thisDevice;
-    DeviceInRoom m_roomOwner;
+    static DeviceInRoom m_thisDevice;
+    static DeviceInRoom m_roomOwner = null;
+    boolean outOfroom = true;
+    static String roomName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +52,16 @@ public class RoomActivity extends AppCompatActivity {
         m_deviceList = (ListDeviceInRoomFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_list_device);
 
+        m_deviceList.clearList();
         Bundle b = getIntent().getBundleExtra("bundle");
-        String roomName = b.getString("roomName");
-        isRoomOwner = b.getBoolean("isRoomOwner");
+        //called from ListRoomActivity => need to update this device and room name
+        if(b != null) {
+            m_deviceList.clearList();
+            roomName = b.getString("roomName");
+            isRoomOwner = b.getBoolean("isRoomOwner");
+            m_thisDevice = new DeviceInRoom(this.getLocalAddress(), Connection.PORT, "", isRoomOwner);
+        }
 
-        m_thisDevice = new DeviceInRoom(this.getLocalAddress(), Connection.PORT, "", isRoomOwner);
         tv_roomName = (TextView) findViewById(R.id.tv_room_name);
         tv_roomName.setText(roomName);
         bt_start = (Button)findViewById(R.id.bt_start);
@@ -66,32 +74,41 @@ public class RoomActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     m_deviceList.sendMessageToAll(RequestFactory.createRequestStartGame().toString());
-                    Intent patternIntent = new Intent(context, PatternActivity.class);
+                    Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
                     startActivity(patternIntent);
-                    context.finish();
+                    appfinished = false;
+                    outOfroom = false;
+                    finish();
                 }
             });
         } else{
             bt_start.setVisibility(View.INVISIBLE);
             Log.d(TAG, "not room owner");
-            //add room owner to list device in the room
-            String roomOwnerName = b.getString("roomOwnerName");
-            String address = b.getString("rommOwnerAddress");
-            int port = b.getInt("roomOwnerPort");
-
-            try {
-                InetAddress adr = InetAddress.getByName(address.substring(1));
-                m_roomOwner = new DeviceInRoom(adr, port, "", true);
-                //add me to the list
-                m_deviceList.addDevice(m_thisDevice);
-                Connection.sendMessage(RequestFactory.createRequestParticipate(m_thisDevice).toString(), adr, port);
-
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
+            //called from ListRoomActivity => need to update room owner from bundle
+            if(b != null){
+                String address = b.getString("rommOwnerAddress");
+                int port = b.getInt("roomOwnerPort");
+                try {
+                    InetAddress adr = InetAddress.getByName(address.substring(1));
+                    m_roomOwner = new DeviceInRoom(adr, port, "", true);
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
             }
-
+            //add me to the list
+            m_deviceList.addDevice(m_thisDevice);
+            //request the list player in room except this device
+            Connection.sendMessage(RequestFactory.createRequestParticipate(m_thisDevice).toString(), m_roomOwner.getIpAdress(), m_roomOwner.getPort());
         }
         appfinished = true;
+    }
+
+    public static DeviceInRoom getThisDeviceInRoom(){
+        return m_thisDevice;
+    }
+
+    public static DeviceInRoom getRoomOwner(){
+        return m_roomOwner;
     }
 
     public boolean isRoomOwner(){
@@ -120,10 +137,14 @@ public class RoomActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        NsdHelper.tearDown();
-        Connection.sendMessage(RequestFactory.createRequestOutOfRoom(m_thisDevice).toString(), m_roomOwner.getIpAdress(), m_roomOwner.getPort());
-        if (appfinished){
-            Connection.tearDownServer();
+        if(outOfroom){
+            //stop room service
+            NsdHelper.tearDown();
+            Connection.sendMessage(RequestFactory.createRequestOutOfRoom(m_thisDevice).toString(), m_roomOwner.getIpAdress(), m_roomOwner.getPort());
+            if (appfinished){
+                //stop server
+                Connection.tearDownServer();
+            }
         }
     }
 
@@ -133,6 +154,13 @@ public class RoomActivity extends AppCompatActivity {
 
     public void onMessageReceived(Socket socket, String msg){
         new Thread(new TreatRequestTask(msg)).start();
+    }
+
+    @Override
+    public void startActivity(Intent i){
+        super.startActivity(i);
+        appfinished = false;
+        this.finish();
     }
 
     public class TreatRequestTask implements Runnable {
@@ -161,6 +189,7 @@ public class RoomActivity extends AppCompatActivity {
                         Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
                         startActivity(patternIntent);
                         appfinished = false;
+                        outOfroom = false;
                         finish();
                         break;
                     case RequestFactory.SIGNAL_GET_LIST_DEVICE:

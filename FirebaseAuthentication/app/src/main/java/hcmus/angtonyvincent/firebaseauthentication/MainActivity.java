@@ -24,6 +24,11 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 
+    String TAG = "MainActivity";
+    protected static int mPlayMode = 0;
+    public static int MODE_SINGLE_PLAYER = 1;
+    public static int MODE_MULTI_PLAYER = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public static int getPlayMode(){
+        return mPlayMode;
     }
 
     public static class PlaceholderFragment extends Fragment {
@@ -108,13 +117,17 @@ public class MainActivity extends AppCompatActivity {
                     if(event.getAction() == MotionEvent.ACTION_UP){
                         switch (number) {
                             case 1:
-                                // Single player
+                                // Single player mode
+                                mPlayMode = MODE_SINGLE_PLAYER;
+
                                 Intent patternIntent = new Intent(getActivity(), PatternActivity.class);
                                 startActivity(patternIntent);
                                 getActivity().finish();
                                 break;
                             case 2:
-                                // Multi player
+                                // Multi player mode
+                                mPlayMode = MODE_MULTI_PLAYER;
+
                                 Intent listRoomIntent = new Intent(getActivity(), ListRoomActivity.class);
                                 startActivity(listRoomIntent);
                                 getActivity().finish();

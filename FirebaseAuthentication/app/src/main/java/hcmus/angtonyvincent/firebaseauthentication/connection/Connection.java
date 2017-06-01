@@ -93,19 +93,19 @@ public class Connection {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Socket socket = null;
-                try {
-                    Log.d(TAG, "send message (" + msg + ") to " + address.toString() + "(port " + port1 + ")");
-                    socket = new Socket(address, port1);
-                    PrintWriter out = new PrintWriter(
-                            new BufferedWriter(
-                                    new OutputStreamWriter(socket.getOutputStream())), true);
-                    out.println(msg);
-                    out.flush();
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            Socket socket = null;
+            try {
+                Log.d(TAG, "send message (" + msg + ") to " + address.toString() + "(port " + port1 + ")");
+                socket = new Socket(address, port1);
+                PrintWriter out = new PrintWriter(
+                        new BufferedWriter(
+                                new OutputStreamWriter(socket.getOutputStream())), true);
+                out.println(msg);
+                out.flush();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             }
         }).start();
     }
@@ -142,7 +142,9 @@ public class Connection {
                 if (messageStr != null) {
                     Log.d(TAG, "message received from " + m_socket.getInetAddress().toString() + ": " + messageStr);
                     //treat the request
-                    ((RoomActivity)m_context).onMessageReceived(m_socket, messageStr);
+                    if (m_context instanceof  ConnectionActionListener) {
+                        ((ConnectionActionListener) m_context).onMessageReceived(m_socket, messageStr);
+                    }
                 } else {
                     Log.d(TAG, "The nulls! The nulls!");
                 }

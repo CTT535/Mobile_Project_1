@@ -26,29 +26,40 @@ import hcmus.angtonyvincent.firebaseauthentication.connection.Connection;
  */
 
 public class ListDeviceInRoomFragment extends ListFragment {
-    private List<DeviceInRoom> m_devices = new ArrayList<DeviceInRoom>();
+    private static List<DeviceInRoom> m_devices = new ArrayList<DeviceInRoom>();
     View mContentView = null;
-    private final String TAG = "ListDeviceFragment";
+    private static String TAG = "ListDeviceFragment";
+    static Context m_activity;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.d(TAG, "on activity create");
         super.onActivityCreated(savedInstanceState);
+        m_activity = getActivity();
         if (getListAdapter() == null) {
             this.setListAdapter(new DeviceListAdapter(getActivity(), R.layout.item_device, m_devices));
         }
     }
 
-    public void sendMessageToAll(String msg){
+    public static void sendMessageToAll(String msg){
         Log.d(TAG, "send message to all ");
+        if(m_devices == null){
+            return;
+        }
         for(DeviceInRoom deviceInList:m_devices){
-            Log.d(TAG, "ip this device: " + ((RoomActivity)getActivity()).getLocalAddress().toString());
+            Log.d(TAG, "ip this device: " + ((RoomActivity)m_activity).getLocalAddress().toString());
             Log.d(TAG, "ip device in list: " + deviceInList.getIpAdress().toString());
-            if (!deviceInList.equal("", ((RoomActivity)getActivity()).getLocalAddress())) {
-                Log.d(TAG, "send message to " + deviceInList.getIpAdress().toString());
+            if (!deviceInList.equal("", ((RoomActivity)m_activity).getLocalAddress())) {
                 Connection.sendMessage(msg, deviceInList.getIpAdress(), deviceInList.getPort());
             }
         }
+    }
+
+    public static int getNumberDeviceInRoom(){
+        if(m_devices == null){
+            return 0;
+        }
+        return m_devices.size();
     }
 
     public JSONArray toJSONArray(){
@@ -77,16 +88,7 @@ public class ListDeviceInRoomFragment extends ListFragment {
     }
 
     public void refresh(){
-        Log.d(TAG, "start refresh");
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    Log.d(TAG, "list adapter: " + getListAdapter());
-                    ((DeviceListAdapter) getListAdapter()).notifyDataSetChanged();
-                    Log.d(TAG, "refresh excuted");
-                }
-            });
-        }
+        ((DeviceListAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
     public DeviceInRoom getRoomOwner(){
@@ -136,7 +138,12 @@ public class ListDeviceInRoomFragment extends ListFragment {
                     top.setText(device.getDeviceName());
                 }
                 if (bottom != null) {
-                    bottom.setText(device.getIpAdress().toString() + "(port " + device.getPort() + ") Room owner: " + device.m_isRoomOwner);
+                    if (device.m_isRoomOwner) {
+                        bottom.setText(device.getIpAdress().toString() + "\nYou are room owner");
+                    }
+                    else {
+                        bottom.setText(device.getIpAdress().toString());
+                    }
                 }
             }
             return v;
@@ -145,48 +152,65 @@ public class ListDeviceInRoomFragment extends ListFragment {
 
     public void addDevice(InetAddress adr, int port, String devieName, boolean isRoomOwner){
         Log.d(TAG, "addDevice: " + devieName + "/" + adr.toString());
-        DeviceInRoom device = new DeviceInRoom(adr, port, devieName, isRoomOwner);
-        if(!isExistInList(device)){
-            m_devices.add(device);
-            if (getListAdapter() == null){
-                this.setListAdapter(new DeviceListAdapter(getActivity(), R.layout.item_device, m_devices));
-            }
-            refresh();
+        final DeviceInRoom device = new DeviceInRoom(adr, port, devieName, isRoomOwner);
+        if(getActivity() != null && !isExistInList(device)){
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    m_devices.add(device);
+                    if (getListAdapter() == null){
+                        setListAdapter(new DeviceListAdapter(getActivity(), R.layout.item_device, m_devices));
+                    }
+                    refresh();
+                }
+            });
         }
     }
 
     public void addDevice(DeviceInRoom device){
+        final DeviceInRoom dv = device;
         Log.d(TAG, "addDevice from device: " + device.getDeviceName() + "/" + device.getIpAdress().toString() + "/" + device.getPort());
-        if(!isExistInList(device)){
+        if(getActivity() != null && !isExistInList(device)){
             Log.d(TAG, "addDevice: " + device.getDeviceName() + "/" + device.getIpAdress());
-            m_devices.add(device);
-            if (getListAdapter() == null){
-                this.setListAdapter(new DeviceListAdapter(getActivity(), R.layout.item_device, m_devices));
-            }
-            refresh();
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    m_devices.add(dv);
+                    if (getListAdapter() == null){
+                        setListAdapter(new DeviceListAdapter(getActivity(), R.layout.item_device, m_devices));
+                    }
+                    refresh();
+                }
+            });
         }
     }
 
     public void removeDevice(String name, InetAddress adr){
-        Iterator<DeviceInRoom> i = m_devices.iterator();
+        final Iterator<DeviceInRoom> i = m_devices.iterator();
         while (i.hasNext()) {
             DeviceInRoom deviceInList = i.next();
             Log.d(TAG, "device in list:" + deviceInList.getDeviceName());
-            if(deviceInList.equal(name, adr)) {
-                i.remove();
-                refresh();
+            if(getActivity() != null && deviceInList.equal(name, adr)) {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        i.remove();
+                        refresh();
+                    }
+                });
             }
         }
     }
 
     public void removeDevice(DeviceInRoom device){
-        Iterator<DeviceInRoom> i = m_devices.iterator();
+        final Iterator<DeviceInRoom> i = m_devices.iterator();
         while (i.hasNext()) {
             DeviceInRoom deviceInList = i.next();
             Log.d(TAG, "device in list:" + deviceInList.getDeviceName());
-            if(deviceInList.equal(device.getDeviceName(), device.getIpAdress())) {
-                i.remove();
-                refresh();
+            if(getActivity() != null && deviceInList.equal(device.getDeviceName(), device.getIpAdress())) {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        i.remove();
+                        refresh();
+                    }
+                });
             }
         }
     }
@@ -203,8 +227,10 @@ public class ListDeviceInRoomFragment extends ListFragment {
     }
 
     public void clearList() {
+        if(m_devices == null || getListAdapter() ==null){
+            return;
+        }
         m_devices.clear();
-        ((DeviceListAdapter) getListAdapter()).notifyDataSetChanged();
+        refresh();
     }
-
 }

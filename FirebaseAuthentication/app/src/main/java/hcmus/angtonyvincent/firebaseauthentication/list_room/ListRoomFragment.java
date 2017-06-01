@@ -68,14 +68,7 @@ public class ListRoomFragment extends ListFragment {
     }
 
     public void refresh(){
-        Log.d(TAG, "start refresh");
-        getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                Log.d(TAG, "refresh on excuting");
-                ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
-                Log.d(TAG, "refresh excuted");
-            }
-        });
+        ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
     /**
@@ -124,25 +117,34 @@ public class ListRoomFragment extends ListFragment {
 
     public void addRoom(InetAddress adr, int port, String roomName){
         Log.d(TAG, "addRoom: " + roomName + "/" + adr.toString());
-        RoomInfo room = new RoomInfo(roomName, new DeviceInRoom(adr, port, "", true));
+        final RoomInfo room = new RoomInfo(roomName, new DeviceInRoom(adr, port, "", true));
         if(!isExistInList(room)){
-            m_rooms.add(room);
-            if (getListAdapter() == null){
-                this.setListAdapter(new WiFiPeerListAdapter(getActivity(), R.layout.item_room, m_rooms));
-            }
-            refresh();
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    m_rooms.add(room);
+                    if (getListAdapter() == null){
+                        setListAdapter(new WiFiPeerListAdapter(getActivity(), R.layout.item_room, m_rooms));
+                    }
+                    refresh();
+                }
+            });
+
         }
     }
 
     public void removeRoom(String name){
         Log.d(TAG, "remove:" + name);
-        Iterator<RoomInfo> i = m_rooms.iterator();
+        final Iterator<RoomInfo> i = m_rooms.iterator();
         while (i.hasNext()) {
             RoomInfo roomInList = i.next();
             Log.d(TAG, "room in list:" + roomInList.getroomName());
             if(roomInList.equal(new RoomInfo(name, null))) {
-                i.remove();
-                refresh();
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        i.remove();
+                        refresh();
+                    }
+                });
             }
         }
     }
