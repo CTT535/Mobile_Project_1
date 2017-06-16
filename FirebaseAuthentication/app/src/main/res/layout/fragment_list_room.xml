@@ -4,12 +4,16 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#fafafa"
     android:paddingTop="3dp">
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:gravity="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="60px"
+        android:layout_gravity="center"
         android:text="@string/label_rooms" />
 
     <View
@@ -27,6 +31,9 @@
         android:drawSelectorOnTop="false"/>
 
     <TextView
+        android:layout_marginLeft="20px"
+        android:textSize="40px"
+        android:textColor="#000"
         android:id="@id/android:empty"
         android:layout_width="match_parent"
         android:layout_gravity="center"

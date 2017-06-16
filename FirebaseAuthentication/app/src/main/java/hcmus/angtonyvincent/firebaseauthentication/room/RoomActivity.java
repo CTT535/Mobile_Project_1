@@ -2,6 +2,7 @@ package hcmus.angtonyvincent.firebaseauthentication.room;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,7 @@ public class RoomActivity extends AppCompatActivity implements ConnectionActionL
         Log.d(TAG, "on create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         m_connection = new Connection(this);
         m_connection.registreServer(Connection.PORT);
@@ -55,16 +57,14 @@ public class RoomActivity extends AppCompatActivity implements ConnectionActionL
         m_deviceList.clearList();
         Bundle b = getIntent().getBundleExtra("bundle");
         //called from ListRoomActivity => need to update this device and room name
-        if(b != null) {
-            m_deviceList.clearList();
-            roomName = b.getString("roomName");
-            isRoomOwner = b.getBoolean("isRoomOwner");
-            m_thisDevice = new DeviceInRoom(this.getLocalAddress(), Connection.PORT, "", isRoomOwner);
-        }
+        roomName = b.getString("roomName");
+        isRoomOwner = b.getBoolean("isRoomOwner");
+        m_thisDevice = new DeviceInRoom(this.getLocalAddress(), Connection.PORT, "", isRoomOwner);
 
         tv_roomName = (TextView) findViewById(R.id.tv_room_name);
         tv_roomName.setText(roomName);
         bt_start = (Button)findViewById(R.id.bt_start);
+
         if(isRoomOwner){
             final Activity context = this;
             m_roomOwner = m_thisDevice;

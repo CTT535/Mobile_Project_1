@@ -1,6 +1,7 @@
 package hcmus.angtonyvincent.firebaseauthentication.list_room;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,7 +25,7 @@ public class ListRoomActivity extends AppCompatActivity implements RoomActionLis
     private final String TAG = "ListRoomActivity";
     private NsdHelper m_nsdHelper;
     private Button m_bRegistre;
-    private Button m_bUnregistre;
+    //private Button m_bUnregistre;
 
     protected boolean appfinished;
 
@@ -34,6 +35,7 @@ public class ListRoomActivity extends AppCompatActivity implements RoomActionLis
         Log.d(TAG, "on create list room activity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_room);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         m_roomList = (ListRoomFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_list_room);
@@ -49,13 +51,13 @@ public class ListRoomActivity extends AppCompatActivity implements RoomActionLis
             }
         });
 
-        m_bUnregistre = (Button) findViewById(R.id.bt_unregistre);
+        /*m_bUnregistre = (Button) findViewById(R.id.bt_unregistre);
         m_bUnregistre.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 m_nsdHelper.tearDown();
             }
-        });
+        });*/
         appfinished = true;
     }
 

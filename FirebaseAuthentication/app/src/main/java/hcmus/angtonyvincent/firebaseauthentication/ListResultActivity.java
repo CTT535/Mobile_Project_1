@@ -1,7 +1,7 @@
 package hcmus.angtonyvincent.firebaseauthentication;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,25 +18,28 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import hcmus.angtonyvincent.firebaseauthentication.connection.Connection;
 import hcmus.angtonyvincent.firebaseauthentication.connection.ConnectionActionListener;
+import hcmus.angtonyvincent.firebaseauthentication.list_room.NsdHelper;
 import hcmus.angtonyvincent.firebaseauthentication.room.DeviceInRoom;
 import hcmus.angtonyvincent.firebaseauthentication.room.ListDeviceInRoomFragment;
 import hcmus.angtonyvincent.firebaseauthentication.room.RequestFactory;
 
 public class ListResultActivity extends AppCompatActivity implements ConnectionActionListener{
-    static Activity instance;
+    static ListResultActivity instance;
     static List<Result> m_listResult;
     static final String TAG = "ListResult";
-    static String strResult = "";
-    static TextView result;
+    static TextView tv_result;
     static Button continueButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_result);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         instance = this;
-        result = (TextView)findViewById(R.id.tv_result);
-        result.setText(strResult);
+        tv_result = (TextView) findViewById(R.id.tv_result);
+        tv_result.setText(this.toResultsString());
 
         continueButton = (Button) findViewById(R.id.result_continue_button);
         continueButton.setOnClickListener(new View.OnClickListener(){
@@ -49,23 +52,20 @@ public class ListResultActivity extends AppCompatActivity implements ConnectionA
         });
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        NsdHelper.tearDown();
+        Connection.tearDownServer();
+    }
+
     public static void addResult(Result res){
         Log.d(TAG, "add result: " + res.toString());
         Log.d(TAG, "ip address: " + res.getDevice().getIpAdress().toString());
         Log.d(TAG, "level: " + res.getLevel().toString());
         Log.d(TAG, "end time: " + res.getTime().toString());
-        strResult += res.getDevice().getIpAdress() + " " + res.getLevel().toString() + "\n";
         if(m_listResult == null){
             m_listResult = new ArrayList<>();
-        }
-        if(instance != null){
-            //this activity is running
-            instance.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    result.setText(strResult);
-                }
-            });
         }
         m_listResult.add(res);
         if(m_listResult.size() == ListDeviceInRoomFragment.getNumberDeviceInRoom()){
@@ -77,17 +77,20 @@ public class ListResultActivity extends AppCompatActivity implements ConnectionA
                     return obj2.CompareTo(obj1);
                 }
             });
-            //winner is the first element
-            //if this activity is running, update on screen
-            if(instance != null){
-                for (Result i: m_listResult) {
-                    strResult += i.getDevice().getIpAdress() + " " + i.getLevel().toString() + "\n";
+        }
+        if(instance != null){
+            //this activity is running
+            instance.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tv_result.setText(instance.toResultsString());
                 }
-            }
+            });
         }
     }
 
     public static void clear(){
+        Log.d(TAG, "clear result list");
         if(m_listResult != null) {
             m_listResult.clear();
         }
@@ -96,11 +99,10 @@ public class ListResultActivity extends AppCompatActivity implements ConnectionA
             instance.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    result.setText(strResult);
+                    tv_result.setText("");
                 }
             });
         }
-        strResult = "";
     }
 
     @Override
@@ -170,5 +172,17 @@ public class ListResultActivity extends AppCompatActivity implements ConnectionA
         public Integer getTime(){
             return m_timeEndGame;
         }
+    }
+
+    public String toResultsString(){
+        String strResult = "";
+        if(m_listResult == null){
+            m_listResult = new ArrayList<>();
+            return "";
+        }
+        for (Result i: m_listResult) {
+            strResult += i.getDevice().getIpAdress() + " " + i.getLevel().toString() + "\n";
+        }
+        return strResult;
     }
 }

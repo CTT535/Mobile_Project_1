@@ -4,32 +4,33 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg"
     tools:context=".list_room.ListRoomActivity">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="0dp"
+        android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:layout_height="fill_parent">
+        android:orientation="vertical">
+
+        <fragment
+            android:id="@+id/fragment_list_room"
+            android:name="hcmus.angtonyvincent.firebaseauthentication.list_room.ListRoomFragment"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/listRoomFragmentHeight"></fragment>
+
 
         <Button
+            android:id="@+id/bt_registre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Registre"
-            android:id="@+id/bt_registre"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Unregistre"
-            android:id="@+id/bt_unregistre"/>
+            android:layout_gravity="center"
+            android:layout_marginTop="40px"
+            android:background="?android:attr/colorActivatedHighlight"
+            android:text="Create Room"
+            android:textColor="?android:attr/detailsElementBackground"
+            android:textSize="50px" />
     </LinearLayout>
 
-    <fragment
-        android:name="hcmus.angtonyvincent.firebaseauthentication.list_room.ListRoomFragment"
-        android:id="@+id/fragment_list_room"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/listRoomFragmentHeight">
-    </fragment>
 
 </LinearLayout>

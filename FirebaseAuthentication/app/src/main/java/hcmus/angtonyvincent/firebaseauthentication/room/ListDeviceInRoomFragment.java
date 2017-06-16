@@ -33,12 +33,12 @@ public class ListDeviceInRoomFragment extends ListFragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        Log.d(TAG, "on activity create");
         super.onActivityCreated(savedInstanceState);
         m_activity = getActivity();
         if (getListAdapter() == null) {
             this.setListAdapter(new DeviceListAdapter(getActivity(), R.layout.item_device, m_devices));
         }
+        refresh();
     }
 
     public static void sendMessageToAll(String msg){

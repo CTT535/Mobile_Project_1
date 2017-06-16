@@ -5,14 +5,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg"
     tools:context="hcmus.angtonyvincent.firebaseauthentication.ListResultActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result"
+        android:textSize="170px"
+        android:textColor="#ffff0000"
+        android:id="@+id/textView2"
+        android:layout_marginTop="122dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/tv_result"
         tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="0dp" />
+        tools:layout_editor_absoluteX="0dp"
+        android:text="Device"
+        android:textColor="#ffffffff"
+        android:textSize="70px"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/textView2"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/result_continue_button"
@@ -20,6 +38,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Continue" />
+        android:background="?android:attr/colorBackground"
+        android:text="Continue"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="55px"/>
 
 </RelativeLayout>

@@ -4,6 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg"
     tools:context=".room.RoomActivity"
     android:orientation="vertical">
 
@@ -28,9 +29,14 @@
     </fragment>
 
     <Button
+        android:id="@+id/bt_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30px"
+        android:background="?android:attr/colorBackground"
         android:text="Start"
-        android:id="@+id/bt_start"/>
+        android:textSize="45px"
+        android:textColor="@color/colorPrimaryDark" />
 
 </LinearLayout>
